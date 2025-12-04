@@ -32,19 +32,19 @@ try {
 
 // Helper to find answer - AI-powered with keyword-based fallback
 async function findAnswer(userMessage) {
-    // Try AI-powered response first if API key is configured
-    if (process.env.OPENAI_API_KEY) {
-        try {
-            const aiResponse = await getAIResponse(userMessage);
-            // Check if it's not an error fallback message
-            if (!aiResponse.includes("currently having trouble")) {
-                return aiResponse;
-            }
-            console.log("AI returned error message, falling back to keyword matching");
-        } catch (error) {
-            console.log("OpenAI failed, falling back to keyword matching:", error.message);
-        }
-    }
+    // OpenAI integration disabled – always use keyword fallback
+    // if (process.env.OPENAI_API_KEY) {
+    //     try {
+    //         const aiResponse = await getAIResponse(userMessage);
+    //         // Check if it's not an error fallback message
+    //         if (!aiResponse.includes("currently having trouble")) {
+    //             return aiResponse;
+    //         }
+    //         console.log("AI returned error message, falling back to keyword matching");
+    //     } catch (error) {
+    //         console.log("OpenAI failed, falling back to keyword matching:", error.message);
+    //     }
+    // }
 
     // Fallback to keyword-based matching from knowledge.json
     const msg = userMessage.toLowerCase();
