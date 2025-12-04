@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – Public Health WhatsApp Chatbot</title>
+    <link rel="stylesheet" href="style.css" />
+    <meta name="description"
+        content="Analytics dashboard for the public health WhatsApp chatbot showing anonymized usage statistics." />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <header class="hero">
+        <h1>Chatbot Dashboard</h1>
+        <p>Anonymous usage insights</p>
+    </header>
+
+    <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="resources.html">Resources</a>
+        <a href="verification.html">Verification</a>
+    </nav>
+
+    <section class="chart-container">
+        <canvas id="questionsChart"></canvas>
+    </section>
+
+    <script>
+        const ctx = document.getElementById('questionsChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Fever', 'Cough', 'Headache', 'Vaccination', 'Nutrition'],
+                datasets: [{
+                    label: 'Number of Questions Asked',
+                    data: [120, 95, 78, 45, 30],
+                    backgroundColor: 'rgba(30,144,255,0.6)',
+                    borderColor: 'rgba(30,144,255,1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+
+    <footer>
+        <p>© 2025 Public Health Initiative</p>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,22 @@
+[
+  {
+    "keywords": ["fever", "temperature", "hot"],
+    "answer": "A fever is a body temperature above 37.5°C. Drink plenty of fluids and rest. If it persists for more than 3 days, visit a clinic."
+  },
+  {
+    "keywords": ["cough", "dry cough", "throat"],
+    "answer": "For a mild cough, stay hydrated and use honey with warm water. If you have difficulty breathing, seek medical help immediately."
+  },
+  {
+    "keywords": ["vaccine", "vaccination", "shot"],
+    "answer": "Vaccines are safe and effective. They protect you and your community from serious diseases. Visit the Resources page for vaccination schedules."
+  },
+  {
+    "keywords": ["emergency", "help", "urgent"],
+    "answer": "In case of a medical emergency, please call the national hotline at 112 immediately."
+  },
+  {
+    "keywords": ["hello", "hi", "start"],
+    "answer": "Hello! I am the Public Health Chatbot. Ask me about common symptoms like fever, cough, or general health info."
+  }
+]
