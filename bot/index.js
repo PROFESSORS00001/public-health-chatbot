@@ -80,7 +80,7 @@ let systemSettings = {
 app.post('/whatsapp', async (req, res) => {
     console.log('🔔 Incoming WhatsApp payload →', req.body);
     const incomingMsg = req.body.Body || '';
-    const sender = req.body.From;
+    const sender = req.body.From || 'unknown';
 
     console.log(`Received message from ${sender}: ${incomingMsg}`);
 
