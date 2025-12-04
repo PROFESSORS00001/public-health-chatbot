@@ -19,7 +19,24 @@ The backend needs a server to run Node.js. Netlify is primarily for static sites
     *   Add `PORT` (set to `3000` or let Render decide).
 7.  **Deploy.** Render will give you a URL (e.g., `https://my-bot-backend.onrender.com`).
 
-## 2. Frontend Deployment (Netlify)
+## 2. WhatsApp Configuration (Twilio)
+
+To connect your deployed backend to WhatsApp:
+
+1.  **Log in to Twilio Console.**
+2.  Go to **Messaging** -> **Services** -> **(Your WhatsApp Service)**.
+3.  In **Inbound Settings**, set the **Webhook URL** to:
+    *   `https://<YOUR-RENDER-URL>/whatsapp`
+    *   Example: `https://public-health-chatbot.onrender.com/whatsapp`
+    *   Ensure the method is **POST**.
+4.  **Save** the settings.
+
+### Troubleshooting WhatsApp
+*   **No Reply:** Check Render logs. If you see `Incoming WhatsApp payload`, the request reached the server.
+*   **OpenAI Quota Error:** If you see "insufficient_quota" in logs, either add a funded API key or the bot will fall back to keyword matching (as currently configured).
+
+
+## 3. Frontend Deployment (Netlify)
 
 The frontend can be hosted on Netlify.
 
@@ -40,7 +57,7 @@ Before deploying, you need to tell the frontend where the backend is.
     *   **Publish directory:** `dist`
 5.  **Deploy Site.**
 
-## 3. Final Steps
+## 4. Final Steps
 1.  Once both are deployed, open your Netlify URL.
 2.  Test the Chatbot and Admin Panel.
 3.  **Important:** The Admin Panel uses in-memory storage for the MVP. If the backend restarts (which happens on free tiers), settings and sessions will be reset. For a real production app, you should use a database (like MongoDB).
