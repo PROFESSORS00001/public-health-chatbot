@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             try {
-                const response = await fetch('http://localhost:3000/api/auth/status', {
+                const response = await fetch('https://public-health-chatbot.onrender.com/api/auth/status', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const response = await fetch('http://localhost:3000/api/auth/login', {
+            const response = await fetch('https://public-health-chatbot.onrender.com/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         // Call backend to invalidate session
         if (token) {
-            fetch('http://localhost:3000/api/auth/logout', {
+            fetch('https://public-health-chatbot.onrender.com/api/auth/logout', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             }).catch(console.error);

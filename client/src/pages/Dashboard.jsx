@@ -36,7 +36,7 @@ const Dashboard = () => {
     });
 
     useEffect(() => {
-        const socket = io('http://localhost:3000');
+        const socket = io('https://public-health-chatbot.onrender.com');
 
         socket.on('connect', () => {
             console.log('Connected to analytics server');

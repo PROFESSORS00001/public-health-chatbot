@@ -16,7 +16,7 @@ const Admin = () => {
     const { logout, token } = useAuth();
 
     useEffect(() => {
-        fetch('http://localhost:3000/api/faqs')
+        fetch('https://public-health-chatbot.onrender.com/api/faqs')
             .then(res => res.json())
             .then(data => {
                 const faqsWithId = data.map((f, i) => ({ ...f, id: f.id ?? i }));
@@ -40,7 +40,7 @@ const Admin = () => {
 
     const fetchAnalytics = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/admin/analytics', {
+            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/analytics', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -52,7 +52,7 @@ const Admin = () => {
 
     const fetchSettings = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/admin/settings', {
+            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/settings', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -65,7 +65,7 @@ const Admin = () => {
 
     const fetchBotConfig = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/admin/bot-config', {
+            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/bot-config', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -77,7 +77,7 @@ const Admin = () => {
 
     const updateSettings = async (newSettings) => {
         try {
-            await fetch('http://localhost:3000/api/admin/settings', {
+            await fetch('https://public-health-chatbot.onrender.com/api/admin/settings', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ const Admin = () => {
 
     const saveBotConfig = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/admin/bot-config', {
+            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/bot-config', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ const Admin = () => {
             return;
         }
         try {
-            const res = await fetch('http://localhost:3000/api/admin/change-password', {
+            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/change-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ const Admin = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this FAQ?')) {
             try {
-                const response = await fetch(`http://localhost:3000/api/faqs/${id}`, {
+                const response = await fetch(`https://public-health-chatbot.onrender.com/api/faqs/${id}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -169,7 +169,7 @@ const Admin = () => {
         const faqData = isEditing === 'new' ? { ...editForm, id: Date.now() } : { ...editForm, id: isEditing };
 
         try {
-            const response = await fetch('http://localhost:3000/api/faqs', {
+            const response = await fetch('https://public-health-chatbot.onrender.com/api/faqs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ const Admin = () => {
     const handleResetAnalytics = async () => {
         if (window.confirm('Are you sure you want to reset all analytics data? This cannot be undone.')) {
             try {
-                await fetch('http://localhost:3000/api/admin/reset-analytics', {
+                await fetch('https://public-health-chatbot.onrender.com/api/admin/reset-analytics', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
