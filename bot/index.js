@@ -78,6 +78,7 @@ let systemSettings = {
 
 // Webhook for WhatsApp (Twilio format)
 app.post('/whatsapp', async (req, res) => {
+    console.log('🔔 Incoming WhatsApp payload →', req.body);
     const incomingMsg = req.body.Body || '';
     const sender = req.body.From;
 
