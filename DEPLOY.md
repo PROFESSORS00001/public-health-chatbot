@@ -16,7 +16,6 @@ The backend needs a server to run Node.js. We recommend **Render** (it has a fre
     *   **Start Command:** `node index.js`
 6.  **Environment Variables:**
     *   `OPENAI_API_KEY`: (Optional) Your OpenAI API Key.
-    *   `MONGODB_URI`: **(Required)** Your MongoDB Connection String (e.g., `mongodb+srv://user:pass@cluster...`).
     *   `PORT`: (Optional) Set to `3000` or let Render decide.
 7.  **Deploy.** Render will give you a URL (e.g., `https://my-bot-backend.onrender.com`).
 
@@ -60,4 +59,4 @@ Before deploying, you need to tell the frontend where the backend is.
 ## 4. Final Steps
 1.  Once both are deployed, open your Netlify URL.
 2.  Test the Chatbot and Admin Panel.
-3.  **Important:** The Admin Panel now uses **MongoDB** for storage. Ensure you have set the `MONGODB_URI` environment variable in Render for your data to be saved permanently.
+3.  **Important:** The Admin Panel uses in-memory storage for the MVP. If the backend restarts (which happens on free tiers), settings and sessions will be reset. For a real production app, you should use a database (like MongoDB).

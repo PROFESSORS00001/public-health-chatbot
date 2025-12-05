@@ -8,14 +8,6 @@ const { Server } = require('socket.io');
 const { generateStamp } = require('./stamp');
 const { getAIResponse } = require('./openai');
 const { validateCredentials, createSession, validateSession, deleteSession, requireAuth, updatePassword } = require('./auth');
-const connectDB = require('./db');
-const mongoose = require('mongoose');
-const Faq = require('./models/Faq');
-const Analytics = require('./models/Analytics');
-const Settings = require('./models/Settings');
-
-// Connect to MongoDB
-connectDB();
 
 const app = express();
 const server = http.createServer(app);
@@ -36,59 +28,35 @@ app.use(bodyParser.json());
 
 // Health Check Route
 app.get('/', (req, res) => {
-    const states = { 0: 'Disconnected', 1: 'Connected', 2: 'Connecting', 3: 'Disconnecting' };
-    const dbStatus = states[mongoose.connection.readyState] || 'Unknown';
-    res.send(`Public Health Chatbot Backend is Running! <br> DB Status: <strong>${dbStatus}</strong> (${mongoose.connection.readyState})`);
+    res.send('Public Health Chatbot Backend is Running! (In-Memory Mode)');
 });
 
-// Debug MongoDB URI (Masked)
-if (process.env.MONGODB_URI) {
-    console.log('MONGODB_URI is set:', process.env.MONGODB_URI.substring(0, 15) + '...');
-} else {
-    console.error('FATAL: MONGODB_URI is NOT set!');
+// Load Knowledge Base
+let knowledge = [];
+try {
+    knowledge = JSON.parse(fs.readFileSync('./knowledge.json', 'utf8'));
+} catch (e) {
+    console.log("Could not load knowledge.json, starting empty.");
 }
 
-// Seed Data Helper
-const seedData = async () => {
-    try {
-        // Seed FAQs
-        const faqCount = await Faq.countDocuments();
-        if (faqCount === 0) {
-            console.log('Seeding FAQs...');
-            let knowledge = [];
-            try {
-                knowledge = JSON.parse(fs.readFileSync('./knowledge.json', 'utf8'));
-            } catch (e) {
-                console.log("Could not load knowledge.json for seeding.");
-            }
-            if (knowledge.length > 0) {
-                await Faq.insertMany(knowledge);
-                console.log('FAQs seeded.');
-            }
-        }
-
-        // Seed Analytics
-        const analyticsCount = await Analytics.countDocuments();
-        if (analyticsCount === 0) {
-            console.log('Seeding Analytics...');
-            await Analytics.create({});
-            console.log('Analytics seeded.');
-        }
-
-        // Seed Settings
-        const settingsCount = await Settings.countDocuments();
-        if (settingsCount === 0) {
-            console.log('Seeding Settings...');
-            await Settings.create({});
-            console.log('Settings seeded.');
-        }
-    } catch (err) {
-        console.error('Error seeding data:', err);
-    }
+// Analytics Data (Mock)
+let analytics = {
+    totalMessages: 5678,
+    activeUsers: 123,
+    verifiedStamps: 892
 };
 
-// Run Seeder
-seedData();
+// Bot Configuration (Mock)
+let botConfig = {
+    greeting: "Hello! I am your public health assistant. How can I help you today?",
+    fallback: "I'm sorry, I don't have information on that yet. Please visit our website for more resources."
+};
+
+// System Settings (Mock)
+let systemSettings = {
+    maintenanceMode: false,
+    debugMode: false
+};
 
 // Helper to find answer - AI-powered with keyword-based fallback
 async function findAnswer(userMessage) {
@@ -106,11 +74,9 @@ async function findAnswer(userMessage) {
     //     }
     // }
 
-    // Fallback to keyword-based matching from DB
+    // Fallback to keyword-based matching from knowledge.json
     const msg = userMessage.toLowerCase();
-    const faqs = await Faq.find({}); // In production, use text search index for efficiency
-
-    for (const entry of faqs) {
+    for (const entry of knowledge) {
         if (entry.keywords && entry.keywords.some(keyword => msg.includes(keyword.toLowerCase()))) {
             let response = entry.answer;
             if (entry.resources && entry.resources.length > 0) {
@@ -123,9 +89,7 @@ async function findAnswer(userMessage) {
         }
     }
 
-    // Get fallback message from DB
-    const settings = await Settings.findOne();
-    return settings?.botConfig?.fallback || "I'm sorry, I don't have information on that yet. Please visit our website for more resources.";
+    return botConfig.fallback;
 }
 
 // Webhook for WhatsApp (Twilio format)
@@ -137,8 +101,7 @@ app.post('/whatsapp', async (req, res) => {
     console.log(`Received message from ${sender}: ${incomingMsg}`);
 
     // Check Maintenance Mode
-    const settings = await Settings.findOne();
-    if (settings?.maintenanceMode) {
+    if (systemSettings.maintenanceMode) {
         res.set('Content-Type', 'text/xml');
         return res.send(`
             <Response>
@@ -153,10 +116,8 @@ app.post('/whatsapp', async (req, res) => {
     const finalResponse = `${answer}\n\n[Official Stamp: ${stamp}]`;
 
     // Update analytics and emit to frontend
-    await Analytics.findOneAndUpdate({}, { $inc: { totalMessages: 1 } });
-    const updatedAnalytics = await Analytics.findOne();
-
-    io.emit('analytics_update', updatedAnalytics);
+    analytics.totalMessages++;
+    io.emit('analytics_update', analytics);
     io.emit('new_message', { text: incomingMsg, timestamp: new Date() });
 
     console.log(`Replying: ${finalResponse}`);
@@ -207,36 +168,26 @@ app.post('/api/auth/logout', (req, res) => {
 // ===== ADMIN SYSTEM ENDPOINTS =====
 
 // Update system settings
-app.post('/api/admin/settings', requireAuth, async (req, res) => {
-    try {
-        const settings = await Settings.findOneAndUpdate({}, req.body, { new: true, upsert: true });
-        console.log('System settings updated:', settings);
-        res.json({ success: true, message: 'Settings updated successfully' });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to update settings' });
-    }
+app.post('/api/admin/settings', requireAuth, (req, res) => {
+    systemSettings = { ...systemSettings, ...req.body };
+    console.log('System settings updated:', systemSettings);
+    res.json({ success: true, message: 'Settings updated successfully' });
 });
 
 // Get system settings
-app.get('/api/admin/settings', requireAuth, async (req, res) => {
-    const settings = await Settings.findOne();
-    res.json(settings || {});
+app.get('/api/admin/settings', requireAuth, (req, res) => {
+    res.json(systemSettings);
 });
 
 // Get bot configuration
-app.get('/api/admin/bot-config', requireAuth, async (req, res) => {
-    const settings = await Settings.findOne();
-    res.json(settings?.botConfig || {});
+app.get('/api/admin/bot-config', requireAuth, (req, res) => {
+    res.json(botConfig);
 });
 
 // Update bot configuration
-app.post('/api/admin/bot-config', requireAuth, async (req, res) => {
-    try {
-        await Settings.findOneAndUpdate({}, { botConfig: req.body }, { upsert: true });
-        res.json({ success: true, message: 'Bot configuration updated' });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to update bot config' });
-    }
+app.post('/api/admin/bot-config', requireAuth, (req, res) => {
+    botConfig = { ...botConfig, ...req.body };
+    res.json({ success: true, message: 'Bot configuration updated' });
 });
 
 // Change password
@@ -250,27 +201,24 @@ app.post('/api/admin/change-password', requireAuth, (req, res) => {
 });
 
 // Export analytics data
-app.get('/api/admin/analytics', requireAuth, async (req, res) => {
-    const analytics = await Analytics.findOne();
-    res.json(analytics || {});
+app.get('/api/admin/analytics', requireAuth, (req, res) => {
+    res.json(analytics);
 });
 
 // Reset analytics
-app.post('/api/admin/reset-analytics', requireAuth, async (req, res) => {
-    await Analytics.findOneAndUpdate({}, {
+app.post('/api/admin/reset-analytics', requireAuth, (req, res) => {
+    analytics = {
         totalMessages: 0,
         activeUsers: 0,
         verifiedStamps: 0
-    });
-    const analytics = await Analytics.findOne();
+    };
     io.emit('analytics_update', analytics);
     res.json({ success: true, message: 'Analytics reset successfully' });
 });
 
 // Export FAQs
-app.get('/api/admin/export-faqs', requireAuth, async (req, res) => {
-    const faqs = await Faq.find({});
-    res.json(faqs);
+app.get('/api/admin/export-faqs', requireAuth, (req, res) => {
+    res.json(knowledge);
 });
 
 // ===== CHAT ENDPOINTS =====
@@ -280,8 +228,7 @@ app.post('/api/chat', async (req, res) => {
     const { message } = req.body;
 
     // Check Maintenance Mode
-    const settings = await Settings.findOne();
-    if (settings?.maintenanceMode) {
+    if (systemSettings.maintenanceMode) {
         return res.json({
             response: "The bot is currently undergoing maintenance. Please try again later.",
             stamp: null,
@@ -293,8 +240,7 @@ app.post('/api/chat', async (req, res) => {
     const stamp = generateStamp(answer);
 
     // Update analytics
-    await Analytics.findOneAndUpdate({}, { $inc: { totalMessages: 1 } });
-    const analytics = await Analytics.findOne();
+    analytics.totalMessages++;
     io.emit('analytics_update', analytics);
 
     res.json({
@@ -305,61 +251,48 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // API Endpoints for FAQs
-app.get('/api/faqs', async (req, res) => {
-    try {
-        const faqs = await Faq.find({}).sort({ createdAt: -1 });
-        res.json(faqs);
-    } catch (err) {
-        console.error("Error fetching FAQs:", err);
-        res.status(500).json({ error: "Failed to fetch FAQs", details: err.message });
-    }
+app.get('/api/faqs', (req, res) => {
+    res.json(knowledge);
 });
 
-app.post('/api/faqs', requireAuth, async (req, res) => {
+app.post('/api/faqs', requireAuth, (req, res) => {
     const newFaq = req.body;
+    if (!newFaq.id) newFaq.id = Date.now();
 
-    try {
-        let savedFaq;
-        // Check if update or new (based on ID being present and existing in DB)
-        const existing = await Faq.findOne({ id: newFaq.id });
-
-        if (existing) {
-            savedFaq = await Faq.findOneAndUpdate({ id: newFaq.id }, newFaq, { new: true });
-        } else {
-            if (!newFaq.id) newFaq.id = Date.now();
-            savedFaq = await Faq.create(newFaq);
-        }
-        res.json({ success: true, faq: savedFaq });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to save FAQ" });
+    // Check if update or new
+    const index = knowledge.findIndex(k => k.id === newFaq.id);
+    if (index !== -1) {
+        knowledge[index] = newFaq;
+    } else {
+        knowledge.push(newFaq);
     }
+
+    // Persist to file (Optional for MVP, but good for persistence)
+    // fs.writeFileSync('./knowledge.json', JSON.stringify(knowledge, null, 2));
+
+    res.json({ success: true, faq: newFaq });
 });
 
-app.delete('/api/faqs/:id', requireAuth, async (req, res) => {
+app.delete('/api/faqs/:id', requireAuth, (req, res) => {
     const id = parseInt(req.params.id);
-    try {
-        const result = await Faq.findOneAndDelete({ id: id });
-        if (result) {
-            res.json({ success: true });
-        } else {
-            res.status(404).json({ error: "FAQ not found" });
-        }
-    } catch (err) {
-        res.status(500).json({ error: "Failed to delete FAQ" });
+    const index = knowledge.findIndex(k => k.id === id);
+    if (index !== -1) {
+        knowledge.splice(index, 1);
+        res.json({ success: true });
+    } else {
+        res.status(404).json({ error: "FAQ not found" });
     }
 });
 
 // API Endpoint for Verification
-app.post('/api/verify', async (req, res) => {
+app.post('/api/verify', (req, res) => {
     const { stamp } = req.body;
 
     // Mock verification logic
     const isValid = stamp && stamp.startsWith('0x') && stamp.length > 10;
 
     if (isValid) {
-        await Analytics.findOneAndUpdate({}, { $inc: { verifiedStamps: 1 } });
-        const analytics = await Analytics.findOne();
+        analytics.verifiedStamps++;
         io.emit('analytics_update', analytics);
 
         res.json({
@@ -378,10 +311,9 @@ app.post('/api/verify', async (req, res) => {
 });
 
 // Socket.io Connection
-io.on('connection', async (socket) => {
+io.on('connection', (socket) => {
     console.log('A user connected to the dashboard');
-    const analytics = await Analytics.findOne();
-    socket.emit('analytics_update', analytics || {});
+    socket.emit('analytics_update', analytics);
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
