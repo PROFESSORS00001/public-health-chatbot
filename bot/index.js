@@ -35,8 +35,9 @@ app.use(bodyParser.json());
 
 // Health Check Route
 app.get('/', (req, res) => {
-    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
-    res.send(`Public Health Chatbot Backend is Running! DB Status: ${dbStatus}`);
+    const states = { 0: 'Disconnected', 1: 'Connected', 2: 'Connecting', 3: 'Disconnecting' };
+    const dbStatus = states[mongoose.connection.readyState] || 'Unknown';
+    res.send(`Public Health Chatbot Backend is Running! <br> DB Status: <strong>${dbStatus}</strong> (${mongoose.connection.readyState})`);
 });
 
 // Debug MongoDB URI (Masked)
@@ -309,7 +310,7 @@ app.get('/api/faqs', async (req, res) => {
         res.json(faqs);
     } catch (err) {
         console.error("Error fetching FAQs:", err);
-        res.status(500).json({ error: "Failed to fetch FAQs" });
+        res.status(500).json({ error: "Failed to fetch FAQs", details: err.message });
     }
 });
 
