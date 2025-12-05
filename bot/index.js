@@ -9,6 +9,7 @@ const { generateStamp } = require('./stamp');
 const { getAIResponse } = require('./openai');
 const { validateCredentials, createSession, validateSession, deleteSession, requireAuth, updatePassword } = require('./auth');
 const connectDB = require('./db');
+const mongoose = require('mongoose');
 const Faq = require('./models/Faq');
 const Analytics = require('./models/Analytics');
 const Settings = require('./models/Settings');
