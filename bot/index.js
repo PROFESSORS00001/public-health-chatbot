@@ -20,12 +20,16 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Allow all origins for MVP
-        methods: ["GET", "POST"]
+        origin: ["https://phchatbot.netlify.app", "http://localhost:5173", "http://localhost:3000"],
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
-app.use(cors());
+app.use(cors({
+    origin: ["https://phchatbot.netlify.app", "http://localhost:5173", "http://localhost:3000"],
+    credentials: true
+}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
