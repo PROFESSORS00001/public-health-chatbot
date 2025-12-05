@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const ChatSimulator = () => {
     const [messages, setMessages] = useState([
-        { id: 1, text: "Hello! I am the Public Health Chatbot. Ask me about common symptoms like fever, cough, or general health info.", sender: 'bot' }
+        { id: 1, text: "Hello! I am the UBMED Health Assistant. Ask me about common symptoms like fever, cough, or general health info.", sender: 'bot' }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -60,7 +60,7 @@ const ChatSimulator = () => {
             <div className="bg-primary p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-2 text-white">
                     <Bot className="h-6 w-6" />
-                    <span className="font-bold">Health Assistant</span>
+                    <span className="font-bold">UBMED Assistant</span>
                 </div>
                 <div className="flex items-center space-x-1 text-white/80 text-xs">
                     <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>

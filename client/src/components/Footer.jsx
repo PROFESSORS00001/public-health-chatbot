@@ -8,7 +8,7 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
-                        <h3 className="text-lg font-bold text-primary mb-4">HealthBot</h3>
+                        <h3 className="text-lg font-bold text-primary mb-4">UBMED</h3>
                         <p className="text-light-muted dark:text-dark-muted text-sm">
                             Providing reliable, blockchain-verified public health information to everyone, everywhere.
                         </p>

@@ -123,8 +123,8 @@ const Resources = () => {
                     >
                         <div className="flex items-start justify-between mb-4">
                             <div className={`p-3 rounded-lg ${resource.category === 'emergency' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
-                                    resource.category === 'official' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' :
-                                        'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                                resource.category === 'official' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' :
+                                    'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
                                 }`}>
                                 {getIcon(resource.type)}
                             </div>
@@ -140,6 +140,8 @@ const Resources = () => {
                         </p>
                         <a
                             href={resource.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="inline-flex items-center text-sm font-medium text-primary hover:text-blue-600 transition-colors"
                         >
                             Access Resource <ArrowRight className="ml-1 h-4 w-4" />
