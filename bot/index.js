@@ -58,6 +58,15 @@ let systemSettings = {
     debugMode: false
 };
 
+// Site Content (Mock CMS)
+let siteContent = {
+    about: "Welcome to the Public Health Chatbot. We are dedicated to providing accurate health information.",
+    privacy: "Your privacy is important to us. We do not store personal data without consent.",
+    terms: "By using this bot, you agree to our terms of service.",
+    contact: "Contact us at support@healthbot.com or call 1-800-HEALTH.",
+    support: "For technical support, please email tech@healthbot.com."
+};
+
 // Helper to find answer - AI-powered with keyword-based fallback
 async function findAnswer(userMessage) {
     // OpenAI integration disabled – always use keyword fallback
@@ -219,6 +228,17 @@ app.post('/api/admin/reset-analytics', requireAuth, (req, res) => {
 // Export FAQs
 app.get('/api/admin/export-faqs', requireAuth, (req, res) => {
     res.json(knowledge);
+});
+
+// Get Site Content (Public)
+app.get('/api/site-content', (req, res) => {
+    res.json(siteContent);
+});
+
+// Update Site Content (Admin)
+app.post('/api/admin/site-content', requireAuth, (req, res) => {
+    siteContent = { ...siteContent, ...req.body };
+    res.json({ success: true, message: 'Site content updated successfully' });
 });
 
 // ===== CHAT ENDPOINTS =====

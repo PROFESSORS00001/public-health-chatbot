@@ -84,7 +84,17 @@ const ChatSimulator = () => {
                                     : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm border border-gray-100 dark:border-gray-700'
                                     }`}
                             >
-                                <p className="text-sm">{msg.text}</p>
+                                <p className="text-sm whitespace-pre-wrap">
+                                    {msg.text.split(/(https?:\/\/[^\s]+)/g).map((part, i) => (
+                                        part.match(/https?:\/\/[^\s]+/) ? (
+                                            <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-600 break-all">
+                                                {part}
+                                            </a>
+                                        ) : (
+                                            part
+                                        )
+                                    ))}
+                                </p>
                                 {msg.stamp && (
                                     <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center text-[10px] text-gray-400">
                                         <ShieldCheck className="h-3 w-3 mr-1 text-green-500" />

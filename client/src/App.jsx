@@ -11,6 +11,7 @@ import Resources from './pages/Resources';
 import Verification from './pages/Verification';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
+import ContentPage from './pages/ContentPage';
 import { AuthProvider, ProtectedRoute } from './context/AuthContext';
 
 function App() {
@@ -28,6 +29,10 @@ function App() {
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/verification" element={<Verification />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/about" element={<ContentPage title="About Us" contentKey="about" />} />
+                  <Route path="/privacy" element={<ContentPage title="Privacy Policy" contentKey="privacy" />} />
+                  <Route path="/terms" element={<ContentPage title="Terms of Service" contentKey="terms" />} />
+                  <Route path="/contact" element={<ContentPage title="Contact Support" contentKey="contact" />} />
                   <Route
                     path="/admin"
                     element={

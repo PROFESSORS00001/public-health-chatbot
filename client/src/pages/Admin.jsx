@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Settings, Database, Users, LogOut, Shield, Activity, MessageSquare } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Settings, Database, Users, LogOut, Shield, Activity, MessageSquare, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,6 +12,7 @@ const Admin = () => {
     const [maintenanceMode, setMaintenanceMode] = useState(false);
     const [debugMode, setDebugMode] = useState(false);
     const [botConfig, setBotConfig] = useState({ greeting: '', fallback: '' });
+    const [siteContent, setSiteContent] = useState({ about: '', privacy: '', terms: '', contact: '', support: '' });
     const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' });
     const { logout, token } = useAuth();
 
@@ -35,6 +36,10 @@ const Admin = () => {
         // Fetch bot config if on bot tab
         if (activeTab === 'bot') {
             fetchBotConfig();
+        }
+        // Fetch site content if on content tab
+        if (activeTab === 'content') {
+            fetchSiteContent();
         }
     }, [activeTab]);
 
@@ -72,6 +77,32 @@ const Admin = () => {
             setBotConfig(data);
         } catch (err) {
             console.error('Error fetching bot config:', err);
+        }
+    };
+
+    const fetchSiteContent = async () => {
+        try {
+            const res = await fetch('https://public-health-chatbot.onrender.com/api/site-content');
+            const data = await res.json();
+            setSiteContent(data);
+        } catch (err) {
+            console.error('Error fetching site content:', err);
+        }
+    };
+
+    const saveSiteContent = async () => {
+        try {
+            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/site-content', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(siteContent)
+            });
+            if (res.ok) alert('Site content updated successfully!');
+        } catch (err) {
+            console.error('Error saving site content:', err);
         }
     };
 
@@ -251,6 +282,7 @@ const Admin = () => {
                                 { id: 'faqs', icon: Database, label: 'Knowledge Base' },
                                 { id: 'analytics', icon: Activity, label: 'Analytics' },
                                 { id: 'bot', icon: MessageSquare, label: 'Bot Config' },
+                                { id: 'content', icon: FileText, label: 'Site Content' },
                                 { id: 'settings', icon: Settings, label: 'System Settings' },
                                 { id: 'security', icon: Shield, label: 'Security' },
                             ].map((item) => (
@@ -498,18 +530,6 @@ const Admin = () => {
                                         className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface"
                                         rows="3"
                                         value={botConfig.fallback}
-                                        onChange={(e) => setBotConfig({ ...botConfig, fallback: e.target.value })}
-                                    ></textarea>
-                                </div>
-                                <button onClick={saveBotConfig} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">Save Configuration</button>
-                            </div>
-
-                        )}
-
-                        {activeTab === 'settings' && (
-                            <div className="space-y-6">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">System Settings</h3>
-                                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
                                     <div>
                                         <h4 className="font-medium text-gray-900 dark:text-white">Maintenance Mode</h4>
                                         <p className="text-sm text-gray-500 dark:text-gray-400">Disable chatbot responses temporarily</p>
