@@ -35,7 +35,8 @@ app.use(bodyParser.json());
 
 // Health Check Route
 app.get('/', (req, res) => {
-    res.send('Public Health Chatbot Backend is Running!');
+    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    res.send(`Public Health Chatbot Backend is Running! DB Status: ${dbStatus}`);
 });
 
 // Debug MongoDB URI (Masked)
@@ -303,8 +304,13 @@ app.post('/api/chat', async (req, res) => {
 
 // API Endpoints for FAQs
 app.get('/api/faqs', async (req, res) => {
-    const faqs = await Faq.find({}).sort({ createdAt: -1 });
-    res.json(faqs);
+    try {
+        const faqs = await Faq.find({}).sort({ createdAt: -1 });
+        res.json(faqs);
+    } catch (err) {
+        console.error("Error fetching FAQs:", err);
+        res.status(500).json({ error: "Failed to fetch FAQs" });
+    }
 });
 
 app.post('/api/faqs', requireAuth, async (req, res) => {
