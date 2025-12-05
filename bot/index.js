@@ -33,6 +33,18 @@ app.use(cors({
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// Health Check Route
+app.get('/', (req, res) => {
+    res.send('Public Health Chatbot Backend is Running!');
+});
+
+// Debug MongoDB URI (Masked)
+if (process.env.MONGODB_URI) {
+    console.log('MONGODB_URI is set:', process.env.MONGODB_URI.substring(0, 15) + '...');
+} else {
+    console.error('FATAL: MONGODB_URI is NOT set!');
+}
+
 // Seed Data Helper
 const seedData = async () => {
     try {
