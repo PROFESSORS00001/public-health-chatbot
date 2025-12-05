@@ -4,7 +4,7 @@ This guide explains how to deploy your Public Health Chatbot. Since the applicat
 
 ## 1. Backend Deployment (Render.com)
 
-The backend needs a server to run Node.js. Netlify is primarily for static sites, so we recommend **Render** (it has a free tier).
+The backend needs a server to run Node.js. We recommend **Render** (it has a free tier).
 
 1.  **Push your code to GitHub.**
 2.  **Sign up for Render** (https://render.com).
@@ -15,8 +15,9 @@ The backend needs a server to run Node.js. Netlify is primarily for static sites
     *   **Build Command:** `npm install`
     *   **Start Command:** `node index.js`
 6.  **Environment Variables:**
-    *   Add `OPENAI_API_KEY` with your key.
-    *   Add `PORT` (set to `3000` or let Render decide).
+    *   `OPENAI_API_KEY`: (Optional) Your OpenAI API Key.
+    *   `MONGODB_URI`: **(Required)** Your MongoDB Connection String (e.g., `mongodb+srv://user:pass@cluster...`).
+    *   `PORT`: (Optional) Set to `3000` or let Render decide.
 7.  **Deploy.** Render will give you a URL (e.g., `https://my-bot-backend.onrender.com`).
 
 ## 2. WhatsApp Configuration (Twilio)
@@ -34,7 +35,6 @@ To connect your deployed backend to WhatsApp:
 ### Troubleshooting WhatsApp
 *   **No Reply:** Check Render logs. If you see `Incoming WhatsApp payload`, the request reached the server.
 *   **OpenAI Quota Error:** If you see "insufficient_quota" in logs, either add a funded API key or the bot will fall back to keyword matching (as currently configured).
-
 
 ## 3. Frontend Deployment (Netlify)
 
@@ -60,4 +60,4 @@ Before deploying, you need to tell the frontend where the backend is.
 ## 4. Final Steps
 1.  Once both are deployed, open your Netlify URL.
 2.  Test the Chatbot and Admin Panel.
-3.  **Important:** The Admin Panel uses in-memory storage for the MVP. If the backend restarts (which happens on free tiers), settings and sessions will be reset. For a real production app, you should use a database (like MongoDB).
+3.  **Important:** The Admin Panel now uses **MongoDB** for storage. Ensure you have set the `MONGODB_URI` environment variable in Render for your data to be saved permanently.
