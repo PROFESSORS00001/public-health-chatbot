@@ -7,7 +7,7 @@ const Admin = () => {
     const [activeTab, setActiveTab] = useState('faqs');
     const [faqs, setFaqs] = useState([]);
     const [isEditing, setIsEditing] = useState(null);
-    const [editForm, setEditForm] = useState({ question: '', answer: '' });
+    const [editForm, setEditForm] = useState({ question: '', answer: '', keywords: '', resources: [] });
     const [analytics, setAnalytics] = useState(null);
     const [maintenanceMode, setMaintenanceMode] = useState(false);
     const [debugMode, setDebugMode] = useState(false);
@@ -146,7 +146,12 @@ const Admin = () => {
 
     const handleEdit = (faq) => {
         setIsEditing(faq.id);
-        setEditForm({ question: faq.question, answer: faq.answer });
+        setEditForm({
+            question: faq.question,
+            answer: faq.answer,
+            keywords: faq.keywords ? faq.keywords.join(', ') : '',
+            resources: faq.resources || []
+        });
     };
 
     const handleDelete = async (id) => {
@@ -166,7 +171,10 @@ const Admin = () => {
     };
 
     const handleSave = async () => {
-        const faqData = isEditing === 'new' ? { ...editForm, id: Date.now() } : { ...editForm, id: isEditing };
+        const keywordsArray = editForm.keywords.split(',').map(k => k.trim()).filter(k => k);
+        const faqData = isEditing === 'new'
+            ? { ...editForm, keywords: keywordsArray, id: Date.now() }
+            : { ...editForm, keywords: keywordsArray, id: isEditing };
 
         try {
             const response = await fetch('https://public-health-chatbot.onrender.com/api/faqs', {
@@ -195,7 +203,23 @@ const Admin = () => {
 
     const handleAddNew = () => {
         setIsEditing('new');
-        setEditForm({ question: '', answer: '' });
+        setEditForm({ question: '', answer: '', keywords: '', resources: [] });
+    };
+
+    const addResource = () => {
+        setEditForm({ ...editForm, resources: [...editForm.resources, { label: '', url: '' }] });
+    };
+
+    const removeResource = (index) => {
+        const newResources = [...editForm.resources];
+        newResources.splice(index, 1);
+        setEditForm({ ...editForm, resources: newResources });
+    };
+
+    const updateResource = (index, field, value) => {
+        const newResources = [...editForm.resources];
+        newResources[index][field] = value;
+        setEditForm({ ...editForm, resources: newResources });
     };
 
     const handleResetAnalytics = async () => {
@@ -293,6 +317,39 @@ const Admin = () => {
                                                     onChange={(e) => setEditForm({ ...editForm, answer: e.target.value })}
                                                     className="w-full mb-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white h-24"
                                                 />
+                                                <div className="mb-3">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Keywords (comma separated)</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. flu, fever, cold"
+                                                        value={editForm.keywords}
+                                                        onChange={(e) => setEditForm({ ...editForm, keywords: e.target.value })}
+                                                        className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
+                                                    />
+                                                </div>
+                                                <div className="mb-3">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resources</label>
+                                                    {editForm.resources.map((res, idx) => (
+                                                        <div key={idx} className="flex gap-2 mb-2">
+                                                            <input
+                                                                placeholder="Label"
+                                                                value={res.label}
+                                                                onChange={(e) => updateResource(idx, 'label', e.target.value)}
+                                                                className="flex-1 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
+                                                            />
+                                                            <input
+                                                                placeholder="URL"
+                                                                value={res.url}
+                                                                onChange={(e) => updateResource(idx, 'url', e.target.value)}
+                                                                className="flex-1 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
+                                                            />
+                                                            <button onClick={() => removeResource(idx)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="h-4 w-4" /></button>
+                                                        </div>
+                                                    ))}
+                                                    <button onClick={addResource} className="text-sm text-primary hover:text-blue-600 font-medium flex items-center">
+                                                        <Plus className="h-3 w-3 mr-1" /> Add Resource
+                                                    </button>
+                                                </div>
                                                 <div className="flex justify-end space-x-2">
                                                     <button onClick={() => setIsEditing(null)} className="px-3 py-1 text-gray-500 hover:text-gray-700">Cancel</button>
                                                     <button onClick={handleSave} className="px-3 py-1 bg-primary text-white rounded-lg">Save</button>
@@ -322,6 +379,38 @@ const Admin = () => {
                                                             onChange={(e) => setEditForm({ ...editForm, answer: e.target.value })}
                                                             className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white h-24"
                                                         />
+                                                        <div className="mb-3">
+                                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Keywords</label>
+                                                            <input
+                                                                type="text"
+                                                                value={editForm.keywords}
+                                                                onChange={(e) => setEditForm({ ...editForm, keywords: e.target.value })}
+                                                                className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
+                                                            />
+                                                        </div>
+                                                        <div className="mb-3">
+                                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resources</label>
+                                                            {editForm.resources.map((res, idx) => (
+                                                                <div key={idx} className="flex gap-2 mb-2">
+                                                                    <input
+                                                                        placeholder="Label"
+                                                                        value={res.label}
+                                                                        onChange={(e) => updateResource(idx, 'label', e.target.value)}
+                                                                        className="flex-1 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
+                                                                    />
+                                                                    <input
+                                                                        placeholder="URL"
+                                                                        value={res.url}
+                                                                        onChange={(e) => updateResource(idx, 'url', e.target.value)}
+                                                                        className="flex-1 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
+                                                                    />
+                                                                    <button onClick={() => removeResource(idx)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="h-4 w-4" /></button>
+                                                                </div>
+                                                            ))}
+                                                            <button onClick={addResource} className="text-sm text-primary hover:text-blue-600 font-medium flex items-center">
+                                                                <Plus className="h-3 w-3 mr-1" /> Add Resource
+                                                            </button>
+                                                        </div>
                                                         <div className="flex justify-end space-x-2">
                                                             <button onClick={() => setIsEditing(null)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"><X className="h-4 w-4" /></button>
                                                             <button onClick={handleSave} className="p-2 text-green-500 hover:bg-green-50 rounded-full"><Save className="h-4 w-4" /></button>
@@ -332,6 +421,18 @@ const Admin = () => {
                                                         <div>
                                                             <h4 className="font-medium text-gray-900 dark:text-white mb-1">{faq.question}</h4>
                                                             <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
+                                                            <div className="flex gap-2 mt-2">
+                                                                {faq.keywords && faq.keywords.length > 0 && (
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                                                                        {faq.keywords.length} Keywords
+                                                                    </span>
+                                                                )}
+                                                                {faq.resources && faq.resources.length > 0 && (
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                                                                        {faq.resources.length} Resources
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                         <div className="flex space-x-2 ml-4">
                                                             <button onClick={() => handleEdit(faq)} className="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors">

@@ -1,22 +1,379 @@
 [
   {
-    "keywords": ["fever", "temperature", "hot"],
-    "answer": "A fever is a body temperature above 37.5°C. Drink plenty of fluids and rest. If it persists for more than 3 days, visit a clinic."
+    "id": 1,
+    "question": "What are the symptoms of COVID-19?",
+    "answer": "Common symptoms of COVID-19 include fever or chills, cough, shortness of breath or difficulty breathing, fatigue, muscle or body aches, headache, new loss of taste or smell, and sore throat.",
+    "keywords": [
+      "covid",
+      "covid-19",
+      "coronavirus",
+      "symptoms",
+      "fever",
+      "cough",
+      "shortness of breath",
+      "loss of taste",
+      "loss of smell"
+    ],
+    "resources": [
+      {
+        "label": "CDC COVID-19 Symptoms",
+        "url": "https://www.cdc.gov/coronavirus/2019-ncov/symptoms-testing/symptoms.html"
+      },
+      {
+        "label": "WHO Coronavirus Info",
+        "url": "https://www.who.int/health-topics/coronavirus"
+      }
+    ]
   },
   {
-    "keywords": ["cough", "dry cough", "throat"],
-    "answer": "For a mild cough, stay hydrated and use honey with warm water. If you have difficulty breathing, seek medical help immediately."
+    "id": 2,
+    "question": "How can I prevent the flu?",
+    "answer": "The best way to prevent the flu is by getting a flu vaccine each year. Other preventive measures include washing your hands often, avoiding close contact with sick people, covering your coughs and sneezes, and cleaning touched surfaces.",
+    "keywords": [
+      "flu",
+      "influenza",
+      "prevent flu",
+      "flu vaccine",
+      "flu shot",
+      "wash hands"
+    ],
+    "resources": [
+      {
+        "label": "CDC Flu Prevention",
+        "url": "https://www.cdc.gov/flu/prevent/index.html"
+      }
+    ]
   },
   {
-    "keywords": ["vaccine", "vaccination", "shot"],
-    "answer": "Vaccines are safe and effective. They protect you and your community from serious diseases. Visit the Resources page for vaccination schedules."
+    "id": 3,
+    "question": "What is high blood pressure (hypertension)?",
+    "answer": "High blood pressure, or hypertension, is a condition where the force of the blood against your artery walls is high enough that it may eventually cause health problems, such as heart disease. It often has no symptoms.",
+    "keywords": [
+      "blood pressure",
+      "high blood pressure",
+      "hypertension",
+      "heart disease",
+      "bp"
+    ],
+    "resources": [
+      {
+        "label": "Mayo Clinic - Hypertension",
+        "url": "https://www.mayoclinic.org/diseases-conditions/high-blood-pressure/symptoms-causes/syc-20373410"
+      },
+      {
+        "label": "AHA - High Blood Pressure",
+        "url": "https://www.heart.org/en/health-topics/high-blood-pressure"
+      }
+    ]
   },
   {
-    "keywords": ["emergency", "help", "urgent"],
-    "answer": "In case of a medical emergency, please call the national hotline at 112 immediately."
+    "id": 4,
+    "question": "What are the signs of a heart attack?",
+    "answer": "Signs of a heart attack include chest pain or discomfort, feeling weak, light-headed, or faint, pain or discomfort in the jaw, neck, or back, pain or discomfort in one or both arms or shoulders, and shortness of breath.",
+    "keywords": [
+      "heart attack",
+      "chest pain",
+      "cardiac arrest",
+      "myocardial infarction",
+      "heart pain"
+    ],
+    "resources": [
+      {
+        "label": "CDC Heart Attack Signs",
+        "url": "https://www.cdc.gov/heartdisease/heart_attack.htm"
+      }
+    ]
   },
   {
-    "keywords": ["hello", "hi", "start"],
-    "answer": "Hello! I am the Public Health Chatbot. Ask me about common symptoms like fever, cough, or general health info."
+    "id": 5,
+    "question": "How do I treat a burn?",
+    "answer": "For minor burns: Cool the burn with cool (not cold) running water for 10-20 minutes. Do not use ice. Cover the burn loosely with a sterile, non-stick bandage. Take over-the-counter pain relievers if needed. Seek medical help for major burns.",
+    "keywords": [
+      "burn",
+      "treat burn",
+      "first aid burn",
+      "scald",
+      "fire injury"
+    ],
+    "resources": [
+      {
+        "label": "Mayo Clinic - Burns First Aid",
+        "url": "https://www.mayoclinic.org/first-aid/first-aid-burns/basics/art-20056649"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "question": "What is diabetes?",
+    "answer": "Diabetes is a chronic (long-lasting) health condition that affects how your body turns food into energy. Most of the food you eat is broken down into sugar (glucose) and released into your bloodstream.",
+    "keywords": [
+      "diabetes",
+      "blood sugar",
+      "insulin",
+      "type 1",
+      "type 2",
+      "glucose"
+    ],
+    "resources": [
+      {
+        "label": "CDC - What is Diabetes?",
+        "url": "https://www.cdc.gov/diabetes/basics/diabetes.html"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "question": "How much water should I drink daily?",
+    "answer": "While individual needs vary, a common recommendation is to drink eight 8-ounce glasses of water a day (the 8x8 rule). The U.S. National Academies recommends about 15.5 cups (3.7 liters) a day for men and 11.5 cups (2.7 liters) a day for women.",
+    "keywords": [
+      "water",
+      "hydration",
+      "drink water",
+      "dehydration",
+      "fluid intake"
+    ],
+    "resources": [
+      {
+        "label": "Mayo Clinic - Water Intake",
+        "url": "https://www.mayoclinic.org/healthy-lifestyle/nutrition-and-healthy-eating/in-depth/water/art-20044256"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "question": "What is a balanced diet?",
+    "answer": "A balanced diet includes a variety of foods: fruits, vegetables, grains (especially whole grains), protein foods (meat, poultry, fish, beans, eggs, nuts), and dairy products. It limits added sugars, saturated fat, and sodium.",
+    "keywords": [
+      "diet",
+      "nutrition",
+      "balanced diet",
+      "healthy eating",
+      "food pyramid",
+      "vitamins"
+    ],
+    "resources": [
+      {
+        "label": "MyPlate.gov",
+        "url": "https://www.myplate.gov/"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "question": "What are the symptoms of malaria?",
+    "answer": "Symptoms of malaria include fever and flu-like illness, including shaking chills, headache, muscle aches, and tiredness. Nausea, vomiting, and diarrhea may also occur. Malaria may cause anemia and jaundice.",
+    "keywords": [
+      "malaria",
+      "mosquito",
+      "fever",
+      "chills",
+      "plasmodium"
+    ],
+    "resources": [
+      {
+        "label": "CDC - Malaria Disease",
+        "url": "https://www.cdc.gov/malaria/about/disease.html"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "question": "How to perform CPR?",
+    "answer": "Hands-Only CPR: Push hard and fast in the center of the chest to the beat of 'Stayin' Alive'. If you are trained, you can give rescue breaths (30 compressions to 2 breaths). Call emergency services immediately.",
+    "keywords": [
+      "cpr",
+      "cardiopulmonary resuscitation",
+      "heart stopped",
+      "unconscious",
+      "first aid cpr"
+    ],
+    "resources": [
+      {
+        "label": "Red Cross - CPR Steps",
+        "url": "https://www.redcross.org/take-a-class/cpr/performing-cpr/cpr-steps"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "question": "What is mental health?",
+    "answer": "Mental health includes our emotional, psychological, and social well-being. It affects how we think, feel, and act. It also helps determine how we handle stress, relate to others, and make choices.",
+    "keywords": [
+      "mental health",
+      "depression",
+      "anxiety",
+      "stress",
+      "well-being",
+      "psychology"
+    ],
+    "resources": [
+      {
+        "label": "MentalHealth.gov",
+        "url": "https://www.mentalhealth.gov/basics/what-is-mental-health"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "question": "How to stop smoking?",
+    "answer": "Quitting smoking is tough but possible. Strategies include nicotine replacement therapy (patches, gum), prescription medicines, counseling, and support groups. Identifying triggers and making a plan helps.",
+    "keywords": [
+      "smoking",
+      "quit smoking",
+      "tobacco",
+      "nicotine",
+      "cigarette"
+    ],
+    "resources": [
+      {
+        "label": "Smokefree.gov",
+        "url": "https://smokefree.gov/"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "question": "What is HIV/AIDS?",
+    "answer": "HIV (human immunodeficiency virus) is a virus that attacks the body's immune system. If not treated, HIV can lead to AIDS (acquired immunodeficiency syndrome). There is currently no effective cure, but it can be controlled with proper medical care.",
+    "keywords": [
+      "hiv",
+      "aids",
+      "virus",
+      "immune system",
+      "std",
+      "sexually transmitted"
+    ],
+    "resources": [
+      {
+        "label": "CDC - About HIV",
+        "url": "https://www.cdc.gov/hiv/basics/whatishiv.html"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "question": "What are the benefits of exercise?",
+    "answer": "Regular physical activity can improve your muscle strength and boost your endurance. Exercise delivers oxygen and nutrients to your tissues and helps your cardiovascular system work more efficiently.",
+    "keywords": [
+      "exercise",
+      "fitness",
+      "workout",
+      "physical activity",
+      "cardio",
+      "strength"
+    ],
+    "resources": [
+      {
+        "label": "Mayo Clinic - Exercise Benefits",
+        "url": "https://www.mayoclinic.org/healthy-lifestyle/fitness/in-depth/exercise/art-20048389"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "question": "How to lower cholesterol?",
+    "answer": "To lower cholesterol: Eat heart-healthy foods (reduce saturated fats, eliminate trans fats, eat foods rich in omega-3 fatty acids, increase soluble fiber), exercise on most days of the week, quit smoking, and lose weight.",
+    "keywords": [
+      "cholesterol",
+      "ldl",
+      "hdl",
+      "heart health",
+      "diet for cholesterol"
+    ],
+    "resources": [
+      {
+        "label": "Mayo Clinic - Cholesterol",
+        "url": "https://www.mayoclinic.org/diseases-conditions/high-blood-cholesterol/in-depth/reduce-cholesterol/art-20045935"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "question": "What is a stroke?",
+    "answer": "A stroke occurs when the blood supply to part of your brain is interrupted or reduced, preventing brain tissue from getting oxygen and nutrients. Brain cells begin to die in minutes. It is a medical emergency.",
+    "keywords": [
+      "stroke",
+      "brain attack",
+      "paralysis",
+      "slurred speech",
+      "face drooping"
+    ],
+    "resources": [
+      {
+        "label": "Stroke Association",
+        "url": "https://www.stroke.org/en/about-stroke"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "question": "How to treat a fever?",
+    "answer": "Rest and drink plenty of fluids. Medication isn't needed for a low fever. For higher fevers or discomfort, take acetaminophen (Tylenol) or ibuprofen (Advil, Motrin IB). Call a doctor if the fever is very high or lasts more than a few days.",
+    "keywords": [
+      "fever",
+      "temperature",
+      "high temp",
+      "chills",
+      "hot"
+    ],
+    "resources": [
+      {
+        "label": "Mayo Clinic - Fever Treatment",
+        "url": "https://www.mayoclinic.org/diseases-conditions/fever/diagnosis-treatment/drc-20354639"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "question": "What is asthma?",
+    "answer": "Asthma is a condition in which your airways narrow and swell and may produce extra mucus. This can make breathing difficult and trigger coughing, a whistling sound (wheezing) when you breathe out, and shortness of breath.",
+    "keywords": [
+      "asthma",
+      "wheezing",
+      "breathing difficulty",
+      "inhaler",
+      "lungs"
+    ],
+    "resources": [
+      {
+        "label": "AAAAI - Asthma Definition",
+        "url": "https://www.aaaai.org/conditions-treatments/asthma"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "question": "How to sleep better?",
+    "answer": "Stick to a sleep schedule, pay attention to what you eat and drink (avoid caffeine/alcohol before bed), create a restful environment, limit daytime naps, include physical activity in your daily routine, and manage worries.",
+    "keywords": [
+      "sleep",
+      "insomnia",
+      "rest",
+      "tired",
+      "sleeping tips"
+    ],
+    "resources": [
+      {
+        "label": "Sleep Foundation",
+        "url": "https://www.sleepfoundation.org/sleep-hygiene"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "question": "What is dengue fever?",
+    "answer": "Dengue is a mosquito-borne viral infection. Symptoms include high fever, headache, vomiting, muscle and joint pains, and a characteristic skin rash. Recovery generally takes two to seven days.",
+    "keywords": [
+      "dengue",
+      "mosquito",
+      "bone break fever",
+      "tropical disease"
+    ],
+    "resources": [
+      {
+        "label": "WHO - Dengue",
+        "url": "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue"
+      }
+    ]
   }
 ]

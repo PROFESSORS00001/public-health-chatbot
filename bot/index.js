@@ -50,7 +50,14 @@ async function findAnswer(userMessage) {
     const msg = userMessage.toLowerCase();
     for (const entry of knowledge) {
         if (entry.keywords && entry.keywords.some(keyword => msg.includes(keyword.toLowerCase()))) {
-            return entry.answer;
+            let response = entry.answer;
+            if (entry.resources && entry.resources.length > 0) {
+                response += "\n\n📚 *Related Resources:*";
+                entry.resources.forEach(res => {
+                    response += `\n• [${res.label}](${res.url})`;
+                });
+            }
+            return response;
         }
     }
 
