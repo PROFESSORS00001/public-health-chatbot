@@ -252,7 +252,17 @@ app.post('/api/chat', async (req, res) => {
 
 // API Endpoints for FAQs
 app.get('/api/faqs', (req, res) => {
-    res.json(knowledge);
+    try {
+        console.log('Fetching FAQs...');
+        if (!knowledge) {
+            console.error('Knowledge base is undefined!');
+            return res.status(500).json({ error: 'Knowledge base not initialized' });
+        }
+        res.json(knowledge);
+    } catch (err) {
+        console.error('Error in GET /api/faqs:', err);
+        res.status(500).json({ error: 'Internal Server Error', details: err.message });
+    }
 });
 
 app.post('/api/faqs', requireAuth, (req, res) => {
