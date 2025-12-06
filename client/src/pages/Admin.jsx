@@ -530,6 +530,10 @@ const Admin = () => {
                                         className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface"
                                         rows="3"
                                         value={botConfig.fallback}
+                                        onChange={(e) => setBotConfig({ ...botConfig, fallback: e.target.value })}
+                                    ></textarea>
+                                </div>
+                                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
                                     <div>
                                         <h4 className="font-medium text-gray-900 dark:text-white">Maintenance Mode</h4>
                                         <p className="text-sm text-gray-500 dark:text-gray-400">Disable chatbot responses temporarily</p>
