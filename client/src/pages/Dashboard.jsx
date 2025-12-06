@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Bar, Line, Doughnut } from 'react-chartjs-2';
+import { Bar, Line, Doughnut, Pie } from 'react-chartjs-2';
 import { io } from 'socket.io-client';
 import {
     Chart as ChartJS,
@@ -12,8 +12,10 @@ import {
     Tooltip,
     Legend,
     ArcElement,
+    Filler
 } from 'chart.js';
 import { useTheme } from '../context/ThemeContext';
+import { Download, Mail, AlertTriangle, TrendingUp, Users, Activity, CheckCircle, Clock, Globe } from 'lucide-react';
 
 ChartJS.register(
     CategoryScale,
@@ -24,177 +26,292 @@ ChartJS.register(
     Title,
     Tooltip,
     Legend,
-    ArcElement
+    ArcElement,
+    Filler
 );
 
 const Dashboard = () => {
     const { isDark } = useTheme();
-    const [analytics, setAnalytics] = useState({
-        totalMessages: 1234,
-        activeUsers: 56,
-        verifiedStamps: 892
+    const [emailSchedule, setEmailSchedule] = useState(false);
+
+    // Mock Data simulating real metrics
+    const [metrics, setMetrics] = useState({
+        totalUsers: 14502,
+        dau: 3420,
+        escalationRate: 4.2, // %
+        avgResponseTime: 0.8, // seconds
+        referralsCompleted: 128,
+        verificationChecks: 450,
+        systemUptime: 99.9,
     });
 
-    useEffect(() => {
-        const socket = io('https://public-health-chatbot.onrender.com');
-
-        socket.on('connect', () => {
-            console.log('Connected to analytics server');
-        });
-
-        socket.on('analytics_update', (data) => {
-            setAnalytics(prev => ({ ...prev, ...data }));
-        });
-
-        return () => {
-            socket.disconnect();
-        };
-    }, []);
-
-    // Mock Data (enhanced with real analytics where possible)
-    const questionData = {
-        labels: ['Fever', 'Cough', 'Headache', 'Vaccination', 'Nutrition', 'Emergency'],
-        datasets: [
-            {
-                label: 'Questions Asked',
-                data: [120, 95, 78, 45, 30, 15],
-                backgroundColor: 'rgba(30, 144, 255, 0.6)',
-                borderColor: 'rgba(30, 144, 255, 1)',
-                borderWidth: 1,
-            },
-        ],
-    };
-
+    // 1. & 2. Users & DAU Chart Data
     const trendData = {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         datasets: [
             {
-                label: 'Daily Interactions',
-                data: [65, 59, 80, 81, 56, 55, 40],
+                label: 'Daily Active Users',
+                data: [3200, 3100, 3400, 3350, 3600, 2900, 2800],
+                borderColor: 'rgba(59, 130, 246, 1)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 fill: true,
-                backgroundColor: 'rgba(255, 107, 107, 0.2)',
-                borderColor: 'rgba(255, 107, 107, 1)',
                 tension: 0.4,
             },
-        ],
+            {
+                label: 'New Unique Users',
+                data: [120, 150, 180, 140, 200, 90, 85],
+                borderColor: 'rgba(16, 185, 129, 1)',
+                backgroundColor: 'transparent',
+                borderDash: [5, 5],
+                tension: 0.4,
+            }
+        ]
     };
 
-    const sourceData = {
-        labels: ['WhatsApp', 'Website Simulator'],
-        datasets: [
-            {
-                data: [85, 15],
-                backgroundColor: ['#25D366', '#1e90ff'],
-                borderColor: isDark ? '#151515' : '#ffffff',
-                borderWidth: 2,
-            },
-        ],
+    // 7. Geographic Distribution (Heatmap Proxy using Bar)
+    const geoData = {
+        labels: ['Western Area', 'Bo', 'Kenema', 'Makeni', 'Port Loko', 'Kono'],
+        datasets: [{
+            label: 'Users by District',
+            data: [5000, 3200, 2800, 1500, 1200, 800],
+            backgroundColor: [
+                'rgba(59, 130, 246, 0.8)',
+                'rgba(59, 130, 246, 0.7)',
+                'rgba(59, 130, 246, 0.6)',
+                'rgba(59, 130, 246, 0.5)',
+                'rgba(59, 130, 246, 0.4)',
+                'rgba(59, 130, 246, 0.3)',
+            ],
+            borderRadius: 4,
+        }]
     };
+
+    // 8. Demographics
+    const demoData = {
+        labels: ['18-24', '25-34', '35-44', '45+'],
+        datasets: [{
+            data: [25, 40, 20, 15],
+            backgroundColor: ['#60A5FA', '#3B82F6', '#2563EB', '#1D4ED8'],
+            borderWidth: 0,
+        }]
+    };
+
+    // 3. Top 10 Questions
+    const topQuestions = [
+        { q: "What are symptoms of Malaria?", count: 1245, trend: 'up' },
+        { q: "Where is the nearest vaccination center?", count: 982, trend: 'stable' },
+        { q: "How to treat typhoid fever?", count: 850, trend: 'up' },
+        { q: "Is cholera vaccination free?", count: 720, trend: 'stable' },
+        { q: "Symptoms of Lassa Fever", count: 650, trend: 'down' },
+    ];
+
+    // 4. Misconceptions
+    const misconceptions = [
+        { claim: "Drinking salt water cures Ebola", risk: "High", count: 120 },
+        { claim: "Vaccines cause infertility", risk: "Severe", count: 85 },
+        { claim: "Herbal tea prevents Malaria", risk: "Moderate", count: 210 },
+    ];
+
+    // 11. Top Sources
+    const topSources = [
+        { name: "Malaria Guidelines PDF", clicks: 450 },
+        { name: "Emergency Center Map", clicks: 320 },
+        { name: "MoH Vaccination Schedule", clicks: 280 },
+    ];
+
+    // 12. Trend Alerts
+    const alerts = [
+        { type: 'critical', msg: 'Spike in "Cholera" queries in Bo District', confidence: '92%' },
+        { type: 'warning', msg: 'Unusual volume of "Fever" reports in Western Area', confidence: '78%' },
+    ];
 
     const chartOptions = {
         responsive: true,
         plugins: {
-            legend: {
-                labels: {
-                    color: isDark ? '#e0e0e0' : '#1f2937',
-                },
-            },
-            title: {
-                display: false,
-            },
+            legend: { position: 'top', labels: { color: isDark ? '#e5e7eb' : '#374151' } },
         },
         scales: {
             y: {
-                grid: {
-                    color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-                },
-                ticks: {
-                    color: isDark ? '#e0e0e0' : '#1f2937',
-                },
+                grid: { color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
+                ticks: { color: isDark ? '#e5e7eb' : '#374151' }
             },
             x: {
-                grid: {
-                    display: false,
-                },
-                ticks: {
-                    color: isDark ? '#e0e0e0' : '#1f2937',
-                },
-            },
-        },
+                grid: { display: false },
+                ticks: { color: isDark ? '#e5e7eb' : '#374151' }
+            }
+        }
+    };
+
+    const handleExport = () => {
+        alert("Generating PDF Report for Ministry of Health...");
+        // Logic to generate/download report would go here
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Analytics Dashboard</h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-2">Real-time insights into chatbot usage and public health trends.</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+            {/* Header with Actions */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">National Health Dashboard</h1>
+                    <p className="text-gray-600 dark:text-gray-400">Real-time surveillance and operational metrics.</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                    <button
+                        onClick={() => setEmailSchedule(!emailSchedule)}
+                        className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${emailSchedule ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                            }`}
+                    >
+                        <Mail className="h-4 w-4 mr-2" />
+                        {emailSchedule ? 'Daily Email Active' : 'Schedule Reports'}
+                    </button>
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 font-medium"
+                    >
+                        <Download className="h-4 w-4 mr-2" />
+                        Export Report
+                    </button>
+                </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            {/* UP: Key Metrics Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: 'Active Users', value: analytics.activeUsers.toLocaleString(), change: '+12%', color: 'text-blue-500' },
-                    { label: 'Total Messages', value: analytics.totalMessages.toLocaleString(), change: '+8%', color: 'text-green-500' },
-                    { label: 'Verified Stamps', value: analytics.verifiedStamps.toLocaleString(), change: '+24%', color: 'text-purple-500' },
-                    { label: 'Avg. Response Time', value: '1.2s', change: '-5%', color: 'text-orange-500' },
-                ].map((stat, index) => (
-                    <div key={index} className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</p>
-                        <div className="flex items-baseline mt-2">
-                            <p className="text-3xl font-semibold text-gray-900 dark:text-white">{stat.value}</p>
-                            <span className={`ml-2 text-sm font-medium ${stat.change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
-                                {stat.change}
-                            </span>
+                    { label: 'Total Unique Users', value: metrics.totalUsers.toLocaleString(), icon: Users, color: 'text-blue-500' },
+                    { label: 'Daily Active Users', value: metrics.dau.toLocaleString(), icon: Activity, color: 'text-green-500' },
+                    { label: 'Escalation Rate', value: `${metrics.escalationRate}%`, sub: 'Referred to Clinics', icon: AlertTriangle, color: 'text-amber-500' },
+                    { label: 'Avg Response Time', value: `${metrics.avgResponseTime}s`, sub: 'System Health: 99.9%', icon: Clock, color: 'text-purple-500' },
+                ].map((stat, i) => (
+                    <div key={i} className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</p>
+                                <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stat.value}</h3>
+                                {stat.sub && <p className="text-xs text-gray-400 mt-1">{stat.sub}</p>}
+                            </div>
+                            <stat.icon className={`h-8 w-8 ${stat.color} opacity-80`} />
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Charts Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Top Health Topics</h3>
-                    <Bar data={questionData} options={chartOptions} />
+            {/* MIDDLE: Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {/* 1. Traffic Trends */}
+                <div className="lg:col-span-2 bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">User Engagement Trends</h3>
+                    <div className="h-72">
+                        <Line data={trendData} options={{ ...chartOptions, maintainAspectRatio: false }} />
+                    </div>
                 </div>
 
-                <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Interaction Trends</h3>
-                    <Line data={trendData} options={chartOptions} />
-                </div>
-
-                <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 lg:col-span-2">
-                    <div className="flex flex-col md:flex-row items-center justify-between">
-                        <div className="w-full md:w-1/3 mb-8 md:mb-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 text-center">Traffic Sources</h3>
-                            <div className="h-64 flex justify-center">
-                                <Doughnut
-                                    data={sourceData}
-                                    options={{
-                                        ...chartOptions,
-                                        scales: { x: { display: false }, y: { display: false } },
-                                        plugins: { legend: { position: 'bottom', labels: { color: isDark ? '#e0e0e0' : '#1f2937' } } }
-                                    }}
-                                />
-                            </div>
+                {/* 2. Demographic & Alerts Column */}
+                <div className="space-y-6">
+                    {/* Alerts */}
+                    <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                            <TrendingUp className="h-5 w-5 mr-2 text-primary" /> Trend Alerts
+                        </h3>
+                        <div className="space-y-3">
+                            {alerts.map((alert, i) => (
+                                <div key={i} className={`p-3 rounded-lg border-l-4 ${alert.type === 'critical' ? 'bg-red-50 border-red-500 dark:bg-red-900/10' : 'bg-amber-50 border-amber-500 dark:bg-amber-900/10'}`}>
+                                    <p className={`text-sm font-semibold ${alert.type === 'critical' ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}>{alert.msg}</p>
+                                    <p className="text-xs text-gray-500 mt-1">Confidence: {alert.confidence}</p>
+                                </div>
+                            ))}
                         </div>
-                        <div className="w-full md:w-2/3 md:pl-12">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Alerts</h3>
-                            <div className="space-y-4">
-                                {[
-                                    { title: 'High Fever Inquiries Spike', time: '2 hours ago', type: 'warning' },
-                                    { title: 'New Vaccination Schedule Released', time: '5 hours ago', type: 'info' },
-                                    { title: 'System Maintenance Scheduled', time: '1 day ago', type: 'neutral' },
-                                ].map((alert, idx) => (
-                                    <div key={idx} className="flex items-start p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                                        <div className={`w-2 h-2 mt-2 rounded-full mr-3 ${alert.type === 'warning' ? 'bg-red-500' : alert.type === 'info' ? 'bg-blue-500' : 'bg-gray-500'
-                                            }`}></div>
-                                        <div>
-                                            <p className="font-medium text-gray-900 dark:text-white">{alert.title}</p>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">{alert.time}</p>
-                                        </div>
-                                    </div>
+                    </div>
+
+                    {/* Demographics */}
+                    <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">User Demographics (Age)</h3>
+                        <div className="h-48 flex justify-center">
+                            <Doughnut data={demoData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: isDark ? '#e5e7eb' : '#374151' } } } }} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Geographic Distribution */}
+            <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Geographic Distribution by District</h3>
+                <div className="h-64">
+                    <Bar data={geoData} options={{ ...chartOptions, maintainAspectRatio: false }} />
+                </div>
+            </div>
+
+            {/* LOWER: Data Tables */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {/* Top Questions */}
+                <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Top Public Concerns (Questions)</h3>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="bg-gray-50 dark:bg-gray-700/50 text-gray-500 font-medium">
+                                <tr>
+                                    <th className="p-3">Question Topic</th>
+                                    <th className="p-3">Count</th>
+                                    <th className="p-3">Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
+                                {topQuestions.map((q, i) => (
+                                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                        <td className="p-3 font-medium">{q.q}</td>
+                                        <td className="p-3">{q.count.toLocaleString()}</td>
+                                        <td className="p-3">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${q.trend === 'up' ? 'bg-green-100 text-green-700' :
+                                                    q.trend === 'down' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                {q.trend.toUpperCase()}
+                                            </span>
+                                        </td>
+                                    </tr>
                                 ))}
-                            </div>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Misinformation Tracking */}
+                <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 text-red-600">Misinformation Watchlist</h3>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="bg-red-50 dark:bg-red-900/10 text-red-600 font-medium">
+                                <tr>
+                                    <th className="p-3">Detected Claim</th>
+                                    <th className="p-3">Risk Level</th>
+                                    <th className="p-3">Frequency</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
+                                {misconceptions.map((item, i) => (
+                                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                        <td className="p-3 font-medium">{item.claim}</td>
+                                        <td className="p-3">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.risk === 'Severe' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                                                }`}>
+                                                {item.risk}
+                                            </span>
+                                        </td>
+                                        <td className="p-3">{item.count}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <h4 className="text-sm font-semibold mb-2">Most Accessed Trusted Resources</h4>
+                        <div className="flex flex-wrap gap-2">
+                            {topSources.map((src, i) => (
+                                <span key={i} className="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-xs border border-blue-100 dark:border-blue-800">
+                                    {src.name} ({src.clicks})
+                                </span>
+                            ))}
                         </div>
                     </div>
                 </div>
