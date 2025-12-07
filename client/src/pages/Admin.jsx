@@ -1,269 +1,173 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Settings, Database, Users, LogOut, Shield, Activity, MessageSquare, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Settings, Database, Users, LogOut, Shield, Activity, MessageSquare, Newspaper, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
 const Admin = () => {
     const [activeTab, setActiveTab] = useState('faqs');
     const [faqs, setFaqs] = useState([]);
+
+    // News State
+    const [news, setNews] = useState([]);
+    const [isEditingNews, setIsEditingNews] = useState(null);
+    const [newsForm, setNewsForm] = useState({ title: '', content: '' });
+
+    // FAQ State
     const [isEditing, setIsEditing] = useState(null);
-    const [editForm, setEditForm] = useState({ question: '', answer: '', keywords: '', resources: [] });
+    const [editForm, setEditForm] = useState({ question: '', answer: '' });
+
+    // Config State
+    const [botConfig, setBotConfig] = useState({ greeting: '', fallback: '' });
+
+    // Security State
+    const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+
     const [analytics, setAnalytics] = useState(null);
     const [maintenanceMode, setMaintenanceMode] = useState(false);
     const [debugMode, setDebugMode] = useState(false);
-    const [botConfig, setBotConfig] = useState({ greeting: '', fallback: '' });
-    const [siteContent, setSiteContent] = useState({ about: '', privacy: '', terms: '', contact: '', support: '' });
-    const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' });
     const { logout, token } = useAuth();
 
+    // Data Fetching
     useEffect(() => {
-        fetch('https://public-health-chatbot.onrender.com/api/faqs')
-            .then(res => res.json())
-            .then(data => {
-                const faqsWithId = data.map((f, i) => ({ ...f, id: f.id ?? i }));
-                setFaqs(faqsWithId);
-            })
-            .catch(err => console.error('Error fetching FAQs:', err));
-
-        // Fetch analytics if on analytics tab
-        if (activeTab === 'analytics') {
-            fetchAnalytics();
-        }
-        // Fetch settings if on settings tab
-        if (activeTab === 'settings') {
-            fetchSettings();
-        }
-        // Fetch bot config if on bot tab
-        if (activeTab === 'bot') {
-            fetchBotConfig();
-        }
-        // Fetch site content if on content tab
-        if (activeTab === 'content') {
-            fetchSiteContent();
-        }
+        if (activeTab === 'faqs') fetchFaqs();
+        if (activeTab === 'analytics') fetchAnalytics();
+        if (activeTab === 'news') fetchNews();
+        if (activeTab === 'bot') fetchConfig();
     }, [activeTab]);
+
+    const fetchFaqs = () => {
+        fetch('http://localhost:3000/api/faqs')
+            .then(res => res.json())
+            .then(data => setFaqs(data.map((f, i) => ({ ...f, id: f.id ?? i }))))
+            .catch(err => console.error('Error fetching FAQs:', err));
+    };
 
     const fetchAnalytics = async () => {
         try {
-            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/analytics', {
+            const res = await fetch('http://localhost:3000/api/admin/analytics', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            const data = await res.json();
-            setAnalytics(data);
-        } catch (err) {
-            console.error('Error fetching analytics:', err);
-        }
+            setAnalytics(await res.json());
+        } catch (err) { console.error(err); }
     };
 
-    const fetchSettings = async () => {
+    const fetchNews = async () => {
         try {
-            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/settings', {
+            const res = await fetch('http://localhost:3000/api/admin/news', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            const data = await res.json();
-            setMaintenanceMode(data.maintenanceMode);
-            setDebugMode(data.debugMode);
-        } catch (err) {
-            console.error('Error fetching settings:', err);
-        }
+            setNews(await res.json());
+        } catch (err) { console.error(err); }
     };
 
-    const fetchBotConfig = async () => {
+    const fetchConfig = async () => {
         try {
-            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/bot-config', {
+            const res = await fetch('http://localhost:3000/api/admin/config', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            const data = await res.json();
-            setBotConfig(data);
-        } catch (err) {
-            console.error('Error fetching bot config:', err);
-        }
+            setBotConfig(await res.json());
+        } catch (err) { console.error(err); }
     };
 
-    const fetchSiteContent = async () => {
+    // --- News Handlers ---
+    const handleSaveNews = async () => {
         try {
-            const res = await fetch('https://public-health-chatbot.onrender.com/api/site-content');
-            const data = await res.json();
-            setSiteContent(data);
-        } catch (err) {
-            console.error('Error fetching site content:', err);
-        }
-    };
-
-    const saveSiteContent = async () => {
-        try {
-            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/site-content', {
+            const body = isEditingNews === 'new' ? { ...newsForm } : { ...newsForm, id: isEditingNews };
+            const res = await fetch('http://localhost:3000/api/admin/news', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(siteContent)
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(body)
             });
-            if (res.ok) alert('Site content updated successfully!');
-        } catch (err) {
-            console.error('Error saving site content:', err);
-        }
+            if (res.ok) {
+                fetchNews();
+                setIsEditingNews(null);
+                setNewsForm({ title: '', content: '' });
+            }
+        } catch (err) { console.error(err); }
     };
 
-    const updateSettings = async (newSettings) => {
+    const handleDeleteNews = async (id) => {
+        if (!window.confirm("Delete this update?")) return;
         try {
-            await fetch('https://public-health-chatbot.onrender.com/api/admin/settings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(newSettings)
+            await fetch(`http://localhost:3000/api/admin/news/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
             });
-        } catch (err) {
-            console.error('Error updating settings:', err);
-        }
+            fetchNews();
+        } catch (err) { console.error(err); }
     };
 
-    const handleMaintenanceToggle = (e) => {
-        const enabled = e.target.checked;
-        setMaintenanceMode(enabled);
-        updateSettings({ maintenanceMode: enabled, debugMode });
-    };
-
-    const handleDebugToggle = (e) => {
-        const enabled = e.target.checked;
-        setDebugMode(enabled);
-        updateSettings({ maintenanceMode, debugMode: enabled });
-    };
-
-    const saveBotConfig = async () => {
+    const handleBroadcast = async (item) => {
+        if (!window.confirm(`Broadcast "${item.title}" to all subscribers?`)) return;
         try {
-            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/bot-config', {
+            const res = await fetch('http://localhost:3000/api/admin/broadcast', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ message: `📢 *${item.title}*\n${item.content}` })
+            });
+            const data = await res.json();
+            alert(`Broadcast sent to ${data.recipientCount} subscribers!`);
+        } catch (err) { alert("Error sending broadcast"); }
+    };
+
+    // --- Bot Config Handlers ---
+    const handleSaveConfig = async () => {
+        try {
+            await fetch('http://localhost:3000/api/admin/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(botConfig)
             });
-            if (res.ok) alert('Bot configuration saved!');
-        } catch (err) {
-            console.error('Error saving bot config:', err);
-        }
+            alert("Configuration saved!");
+        } catch (err) { console.error(err); }
     };
 
-    const handleChangePassword = async () => {
-        if (passwordForm.new !== passwordForm.confirm) {
-            alert("Passwords don't match!");
-            return;
+    // --- Security Handlers ---
+    const handlePasswordChange = async () => {
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            return alert("New passwords do not match!");
         }
         try {
-            const res = await fetch('https://public-health-chatbot.onrender.com/api/admin/change-password', {
+            const res = await fetch('http://localhost:3000/api/auth/change-password', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ newPassword: passwordForm.new })
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    currentPassword: passwordData.currentPassword,
+                    newPassword: passwordData.newPassword
+                })
             });
             const data = await res.json();
             if (data.success) {
-                alert('Password updated successfully!');
-                setPasswordForm({ current: '', new: '', confirm: '' });
+                alert("Password updated successfully!");
+                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
             } else {
-                alert(data.error || 'Failed to update password');
+                alert("Error: " + data.error);
             }
-        } catch (err) {
-            console.error('Error changing password:', err);
-        }
+        } catch (err) { console.error(err); }
     };
 
-    const handleEdit = (faq) => {
-        setIsEditing(faq.id);
-        setEditForm({
-            question: faq.question,
-            answer: faq.answer,
-            keywords: faq.keywords ? faq.keywords.join(', ') : '',
-            resources: faq.resources || []
-        });
-    };
-
+    // --- FAQ Handlers ---
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this FAQ?')) {
-            try {
-                const response = await fetch(`https://public-health-chatbot.onrender.com/api/faqs/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    setFaqs(faqs.filter(f => f.id !== id));
-                }
-            } catch (error) {
-                console.error("Error deleting FAQ:", error);
-            }
+        if (window.confirm('Are you sure?')) {
+            await fetch(`http://localhost:3000/api/faqs/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            fetchFaqs();
         }
     };
 
     const handleSave = async () => {
-        const keywordsArray = editForm.keywords.split(',').map(k => k.trim()).filter(k => k);
-        const faqData = isEditing === 'new'
-            ? { ...editForm, keywords: keywordsArray, id: Date.now() }
-            : { ...editForm, keywords: keywordsArray, id: isEditing };
-
-        try {
-            const response = await fetch('https://public-health-chatbot.onrender.com/api/faqs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(faqData)
-            });
-
-            if (response.ok) {
-                const savedFaq = (await response.json()).faq;
-                if (isEditing === 'new') {
-                    setFaqs([...faqs, savedFaq]);
-                } else {
-                    setFaqs(faqs.map(f => f.id === isEditing ? savedFaq : f));
-                }
-                setIsEditing(null);
-                setEditForm({ question: '', answer: '' });
-            }
-        } catch (error) {
-            console.error("Error saving FAQ:", error);
-        }
-    };
-
-    const handleAddNew = () => {
-        setIsEditing('new');
-        setEditForm({ question: '', answer: '', keywords: '', resources: [] });
-    };
-
-    const addResource = () => {
-        setEditForm({ ...editForm, resources: [...editForm.resources, { label: '', url: '' }] });
-    };
-
-    const removeResource = (index) => {
-        const newResources = [...editForm.resources];
-        newResources.splice(index, 1);
-        setEditForm({ ...editForm, resources: newResources });
-    };
-
-    const updateResource = (index, field, value) => {
-        const newResources = [...editForm.resources];
-        newResources[index][field] = value;
-        setEditForm({ ...editForm, resources: newResources });
-    };
-
-    const handleResetAnalytics = async () => {
-        if (window.confirm('Are you sure you want to reset all analytics data? This cannot be undone.')) {
-            try {
-                await fetch('https://public-health-chatbot.onrender.com/api/admin/reset-analytics', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                fetchAnalytics();
-            } catch (err) {
-                console.error('Error resetting analytics:', err);
-            }
+        const faqData = isEditing === 'new' ? { ...editForm, id: Date.now() } : { ...editForm, id: isEditing };
+        const res = await fetch('http://localhost:3000/api/faqs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(faqData)
+        });
+        if (res.ok) {
+            fetchFaqs();
+            setIsEditing(null);
+            setEditForm({ question: '', answer: '' });
         }
     };
 
@@ -279,11 +183,10 @@ const Admin = () => {
                         </div>
                         <nav className="p-2 space-y-1">
                             {[
+                                { id: 'news', icon: Newspaper, label: 'News & Updates' },
                                 { id: 'faqs', icon: Database, label: 'Knowledge Base' },
                                 { id: 'analytics', icon: Activity, label: 'Analytics' },
                                 { id: 'bot', icon: MessageSquare, label: 'Bot Config' },
-                                { id: 'content', icon: FileText, label: 'Site Content' },
-                                { id: 'settings', icon: Settings, label: 'System Settings' },
                                 { id: 'security', icon: Shield, label: 'Security' },
                             ].map((item) => (
                                 <button
@@ -314,287 +217,196 @@ const Admin = () => {
                 {/* Main Content */}
                 <div className="flex-grow">
                     <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+
+                        {/* NEWS TAB */}
+                        {activeTab === 'news' && (
+                            <div>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Recent Updates</h3>
+                                    <button
+                                        onClick={() => { setIsEditingNews('new'); setNewsForm({ title: '', content: '' }); }}
+                                        className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600"
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" /> Post New Update
+                                    </button>
+                                </div>
+                                <div className="space-y-4">
+                                    {isEditingNews && (
+                                        <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-primary/20 mb-4">
+                                            <input
+                                                className="w-full mb-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface"
+                                                placeholder="Title (e.g. Malaria Vaccine Drive)"
+                                                value={newsForm.title}
+                                                onChange={e => setNewsForm({ ...newsForm, title: e.target.value })}
+                                            />
+                                            <textarea
+                                                className="w-full mb-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface h-32"
+                                                placeholder="Content of the update..."
+                                                value={newsForm.content}
+                                                onChange={e => setNewsForm({ ...newsForm, content: e.target.value })}
+                                            />
+                                            <div className="flex justify-end space-x-2">
+                                                <button onClick={() => setIsEditingNews(null)} className="px-3 py-1 text-gray-500">Cancel</button>
+                                                <button onClick={handleSaveNews} className="px-3 py-1 bg-primary text-white rounded-lg">Save & Post</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {news.map(item => (
+                                        <div key={item.id} className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h4 className="font-bold text-lg text-gray-900 dark:text-white">{item.title}</h4>
+                                                    <p className="text-sm text-gray-500 mb-2">{new Date(item.date).toLocaleDateString()}</p>
+                                                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{item.content}</p>
+                                                </div>
+                                                <div className="flex space-x-2">
+                                                    <button onClick={() => handleBroadcast(item)} title="Broadcast to Subscribers" className="p-2 text-blue-500 hover:bg-blue-50 rounded-full">
+                                                        <Send className="h-4 w-4" />
+                                                    </button>
+                                                    <button onClick={() => handleDeleteNews(item.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-full">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {news.length === 0 && <p className="text-center text-gray-500">No updates posted yet.</p>}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* FAQS TAB */}
                         {activeTab === 'faqs' && (
                             <div>
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">Knowledge Base</h3>
                                     <button
-                                        onClick={handleAddNew}
-                                        className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                                        onClick={() => { setIsEditing('new'); setEditForm({ question: '', answer: '' }); }}
+                                        className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600"
                                     >
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Add New FAQ
+                                        <Plus className="h-4 w-4 mr-2" /> Add FAQ
                                     </button>
                                 </div>
-
                                 <div className="space-y-4">
-                                    <AnimatePresence>
-                                        {isEditing === 'new' && (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-primary/20 mb-4"
-                                            >
-                                                <input
-                                                    type="text"
-                                                    placeholder="Question"
-                                                    value={editForm.question}
-                                                    onChange={(e) => setEditForm({ ...editForm, question: e.target.value })}
-                                                    className="w-full mb-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
-                                                />
-                                                <textarea
-                                                    placeholder="Answer"
-                                                    value={editForm.answer}
-                                                    onChange={(e) => setEditForm({ ...editForm, answer: e.target.value })}
-                                                    className="w-full mb-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white h-24"
-                                                />
-                                                <div className="mb-3">
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Keywords (comma separated)</label>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="e.g. flu, fever, cold"
-                                                        value={editForm.keywords}
-                                                        onChange={(e) => setEditForm({ ...editForm, keywords: e.target.value })}
-                                                        className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
-                                                    />
-                                                </div>
-                                                <div className="mb-3">
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resources</label>
-                                                    {editForm.resources.map((res, idx) => (
-                                                        <div key={idx} className="flex gap-2 mb-2">
-                                                            <input
-                                                                placeholder="Label"
-                                                                value={res.label}
-                                                                onChange={(e) => updateResource(idx, 'label', e.target.value)}
-                                                                className="flex-1 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
-                                                            />
-                                                            <input
-                                                                placeholder="URL"
-                                                                value={res.url}
-                                                                onChange={(e) => updateResource(idx, 'url', e.target.value)}
-                                                                className="flex-1 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
-                                                            />
-                                                            <button onClick={() => removeResource(idx)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="h-4 w-4" /></button>
-                                                        </div>
-                                                    ))}
-                                                    <button onClick={addResource} className="text-sm text-primary hover:text-blue-600 font-medium flex items-center">
-                                                        <Plus className="h-3 w-3 mr-1" /> Add Resource
-                                                    </button>
-                                                </div>
-                                                <div className="flex justify-end space-x-2">
-                                                    <button onClick={() => setIsEditing(null)} className="px-3 py-1 text-gray-500 hover:text-gray-700">Cancel</button>
-                                                    <button onClick={handleSave} className="px-3 py-1 bg-primary text-white rounded-lg">Save</button>
-                                                </div>
-                                            </motion.div>
-                                        )}
-
-                                        {faqs.map((faq) => (
-                                            <motion.div
-                                                key={faq.id}
-                                                layout
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                exit={{ opacity: 0 }}
-                                                className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-colors bg-gray-50/50 dark:bg-gray-900/20"
-                                            >
-                                                {isEditing === faq.id ? (
-                                                    <div className="space-y-3">
-                                                        <input
-                                                            type="text"
-                                                            value={editForm.question}
-                                                            onChange={(e) => setEditForm({ ...editForm, question: e.target.value })}
-                                                            className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
-                                                        />
-                                                        <textarea
-                                                            value={editForm.answer}
-                                                            onChange={(e) => setEditForm({ ...editForm, answer: e.target.value })}
-                                                            className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white h-24"
-                                                        />
-                                                        <div className="mb-3">
-                                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Keywords</label>
-                                                            <input
-                                                                type="text"
-                                                                value={editForm.keywords}
-                                                                onChange={(e) => setEditForm({ ...editForm, keywords: e.target.value })}
-                                                                className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
-                                                            />
-                                                        </div>
-                                                        <div className="mb-3">
-                                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resources</label>
-                                                            {editForm.resources.map((res, idx) => (
-                                                                <div key={idx} className="flex gap-2 mb-2">
-                                                                    <input
-                                                                        placeholder="Label"
-                                                                        value={res.label}
-                                                                        onChange={(e) => updateResource(idx, 'label', e.target.value)}
-                                                                        className="flex-1 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
-                                                                    />
-                                                                    <input
-                                                                        placeholder="URL"
-                                                                        value={res.url}
-                                                                        onChange={(e) => updateResource(idx, 'url', e.target.value)}
-                                                                        className="flex-1 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white"
-                                                                    />
-                                                                    <button onClick={() => removeResource(idx)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="h-4 w-4" /></button>
-                                                                </div>
-                                                            ))}
-                                                            <button onClick={addResource} className="text-sm text-primary hover:text-blue-600 font-medium flex items-center">
-                                                                <Plus className="h-3 w-3 mr-1" /> Add Resource
-                                                            </button>
-                                                        </div>
-                                                        <div className="flex justify-end space-x-2">
-                                                            <button onClick={() => setIsEditing(null)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"><X className="h-4 w-4" /></button>
-                                                            <button onClick={handleSave} className="p-2 text-green-500 hover:bg-green-50 rounded-full"><Save className="h-4 w-4" /></button>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex justify-between items-start">
-                                                        <div>
-                                                            <h4 className="font-medium text-gray-900 dark:text-white mb-1">{faq.question}</h4>
-                                                            <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
-                                                            <div className="flex gap-2 mt-2">
-                                                                {faq.keywords && faq.keywords.length > 0 && (
-                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
-                                                                        {faq.keywords.length} Keywords
-                                                                    </span>
-                                                                )}
-                                                                {faq.resources && faq.resources.length > 0 && (
-                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-                                                                        {faq.resources.length} Resources
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex space-x-2 ml-4">
-                                                            <button onClick={() => handleEdit(faq)} className="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-full transition-colors">
-                                                                <Edit className="h-4 w-4" />
-                                                            </button>
-                                                            <button onClick={() => handleDelete(faq.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </motion.div>
-                                        ))}
-                                    </AnimatePresence>
+                                    {isEditing === 'new' && (
+                                        <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-primary/20 mb-4">
+                                            <input
+                                                className="w-full mb-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface"
+                                                placeholder="Question"
+                                                value={editForm.question}
+                                                onChange={e => setEditForm({ ...editForm, question: e.target.value })}
+                                            />
+                                            <textarea
+                                                className="w-full mb-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface h-24"
+                                                placeholder="Answer"
+                                                value={editForm.answer}
+                                                onChange={e => setEditForm({ ...editForm, answer: e.target.value })}
+                                            />
+                                            <div className="flex justify-end space-x-2">
+                                                <button onClick={() => setIsEditing(null)} className="px-3 py-1 text-gray-500">Cancel</button>
+                                                <button onClick={handleSave} className="px-3 py-1 bg-primary text-white rounded-lg">Save</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {faqs.map(faq => (
+                                        <div key={faq.id} className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20 flex justify-between">
+                                            <div>
+                                                <h4 className="font-medium text-gray-900 dark:text-white">{faq.question}</h4>
+                                                <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
+                                            </div>
+                                            <button onClick={() => handleDelete(faq.id)} className="text-red-500 p-2"><Trash2 className="h-4 w-4" /></button>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}
 
-                        {activeTab === 'analytics' && (
+                        {/* ANALYTICS TAB */}
+                        {activeTab === 'analytics' && analytics && (
                             <div className="space-y-6">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Analytics Management</h3>
-                                    <button onClick={handleResetAnalytics} className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm font-medium">
-                                        Reset All Data
-                                    </button>
-                                </div>
-                                {analytics ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                                            <h4 className="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Messages</h4>
-                                            <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{analytics.totalMessages}</p>
-                                        </div>
-                                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
-                                            <h4 className="text-sm text-green-600 dark:text-green-400 font-medium">Active Users</h4>
-                                            <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{analytics.activeUsers}</p>
-                                        </div>
-                                        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800">
-                                            <h4 className="text-sm text-purple-600 dark:text-purple-400 font-medium">Verified Stamps</h4>
-                                            <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{analytics.verifiedStamps}</p>
-                                        </div>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Analytics</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                                        <h4 className="text-sm text-blue-600">Total Messages</h4>
+                                        <p className="text-2xl font-bold">{analytics.totalMessages}</p>
                                     </div>
-                                ) : (
-                                    <p>Loading analytics...</p>
-                                )}
+                                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                                        <h4 className="text-sm text-green-600">Active Users</h4>
+                                        <p className="text-2xl font-bold">{analytics.activeUsers}</p>
+                                    </div>
+                                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800">
+                                        <h4 className="text-sm text-purple-600">Verified Stamps</h4>
+                                        <p className="text-2xl font-bold">{analytics.verifiedStamps}</p>
+                                    </div>
+                                    <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-100 dark:border-orange-800">
+                                        <h4 className="text-sm text-orange-600">Subscribers</h4>
+                                        <p className="text-2xl font-bold">{analytics.subscriberCount || 0}</p>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
+                        {/* BOT CONFIG TAB */}
                         {activeTab === 'bot' && (
                             <div className="space-y-6">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Bot Configuration</h3>
-                                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Greeting Message</label>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Bot Configuration</h3>
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Greeting Message</label>
                                     <textarea
-                                        className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface"
-                                        rows="3"
+                                        className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg"
                                         value={botConfig.greeting}
-                                        onChange={(e) => setBotConfig({ ...botConfig, greeting: e.target.value })}
-                                    ></textarea>
+                                        onChange={e => setBotConfig({ ...botConfig, greeting: e.target.value })}
+                                    />
                                 </div>
-                                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fallback Message</label>
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Fallback Message</label>
                                     <textarea
-                                        className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface"
-                                        rows="3"
+                                        className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg"
                                         value={botConfig.fallback}
-                                        onChange={(e) => setBotConfig({ ...botConfig, fallback: e.target.value })}
-                                    ></textarea>
+                                        onChange={e => setBotConfig({ ...botConfig, fallback: e.target.value })}
+                                    />
                                 </div>
-                                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                                    <div>
-                                        <h4 className="font-medium text-gray-900 dark:text-white">Maintenance Mode</h4>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Disable chatbot responses temporarily</p>
-                                    </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
+                                <button onClick={handleSaveConfig} className="px-4 py-2 bg-primary text-white rounded-lg">Save Configuration</button>
+                            </div>
+                        )}
+
+                        {/* SECURITY TAB */}
+                        {activeTab === 'security' && (
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Security Settings</h3>
+                                <div className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 max-w-md">
+                                    <h4 className="font-medium mb-4">Change Admin Password</h4>
+                                    <div className="space-y-4">
                                         <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            checked={maintenanceMode}
-                                            onChange={handleMaintenanceToggle}
+                                            type="password" placeholder="Current Password"
+                                            className="w-full p-2 rounded-lg border"
+                                            value={passwordData.currentPassword}
+                                            onChange={e => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                                         />
-                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                                    </label>
-                                </div>
-                                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                                    <div>
-                                        <h4 className="font-medium text-gray-900 dark:text-white">Debug Mode</h4>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Show detailed error logs</p>
-                                    </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
                                         <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            checked={debugMode}
-                                            onChange={handleDebugToggle}
+                                            type="password" placeholder="New Password"
+                                            className="w-full p-2 rounded-lg border"
+                                            value={passwordData.newPassword}
+                                            onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                                         />
-                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                                    </label>
+                                        <input
+                                            type="password" placeholder="Confirm New Password"
+                                            className="w-full p-2 rounded-lg border"
+                                            value={passwordData.confirmPassword}
+                                            onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                        />
+                                        <button onClick={handlePasswordChange} className="w-full py-2 bg-primary text-white rounded-lg hover:bg-blue-600">
+                                            Update Password
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
 
-                        {activeTab === 'security' && (
-                            <div className="space-y-6">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Security Settings</h3>
-                                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                                    <h4 className="font-medium text-gray-900 dark:text-white mb-4">Change Password</h4>
-                                    <div className="space-y-4">
-                                        <input
-                                            type="password"
-                                            placeholder="New Password"
-                                            className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface"
-                                            value={passwordForm.new}
-                                            onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
-                                        />
-                                        <input
-                                            type="password"
-                                            placeholder="Confirm New Password"
-                                            className="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface"
-                                            value={passwordForm.confirm}
-                                            onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
-                                        />
-                                        <button onClick={handleChangePassword} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">Update Password</button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 

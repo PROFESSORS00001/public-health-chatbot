@@ -31,7 +31,7 @@ const Navbar = () => {
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center">
                         <Link to="/" className="flex-shrink-0 font-bold text-xl text-primary">
-                            UBMED
+                            HealthBot
                         </Link>
                         <div className="hidden md:block">
                             <div className="ml-10 flex items-baseline space-x-4">

@@ -1,194 +1,181 @@
 import React, { useState } from 'react';
-import { Search, FileText, Phone, ExternalLink, Download, MapPin, ShieldCheck, AlertTriangle, Video, Globe, ChevronRight } from 'lucide-react';
+import { Search, FileText, Phone, ExternalLink, Download, Filter } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 
 const Resources = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [category, setCategory] = useState('all');
 
-    // Mock Data for Sections
-    const nationalUpdates = [
-        { id: 1, date: '2025-10-15', title: 'MoH Alert: Seasonal Flu Vaccination Drive Begins', summary: 'The Ministry of Health announces the start of the annual flu vaccination campaign for all districts.', link: '#' },
-        { id: 2, date: '2025-10-10', title: 'Press Release: Malaria Prevention Month', summary: 'New mosquito nets distribution schedule released for Western Area.', link: '#' },
+    const resources = [
+        {
+            id: 1,
+            title: 'Ministry of Health Guidelines',
+            description: 'Official protocols for disease prevention and management.',
+            type: 'document',
+            category: 'official',
+            link: 'https://www.who.int/emergencies/diseases/novel-coronavirus-2019/technical-guidance'
+        },
+        {
+            id: 2,
+            title: 'Emergency Hotline List',
+            description: 'Direct contacts for ambulance, fire, and police services.',
+            type: 'contact',
+            category: 'emergency',
+            link: 'https://www.redcross.org/get-help/how-to-prepare-for-emergencies.html'
+        },
+        {
+            id: 3,
+            title: 'Vaccination Schedule 2025',
+            description: 'Updated immunization chart for children and adults.',
+            type: 'download',
+            category: 'prevention',
+            link: 'https://www.cdc.gov/vaccines/schedules/index.html'
+        },
+        {
+            id: 4,
+            title: 'WHO Global Health Alerts',
+            description: 'Real-time updates on global health emergencies.',
+            type: 'external',
+            category: 'official',
+            link: 'https://www.who.int/emergencies'
+        },
+        {
+            id: 5,
+            title: 'Nutrition & Diet Guide',
+            description: 'Healthy eating habits for boosting immunity.',
+            type: 'document',
+            category: 'wellness',
+            link: 'https://www.nutrition.gov/topics/basic-nutrition/healthy-eating'
+        },
+        {
+            id: 6,
+            title: 'Mental Health Support',
+            description: 'Resources and contacts for mental well-being.',
+            type: 'contact',
+            category: 'wellness',
+            link: 'https://www.who.int/health-topics/mental-health'
+        }
     ];
 
-    const authorities = [
-        { id: 1, name: 'WHO Rwanda', description: 'World Health Organization Country Office', url: 'https://www.who.int/rwanda' },
-        { id: 2, name: 'UNICEF', description: 'Promoting the rights and wellbeing of every child', url: 'https://www.unicef.org' },
-        { id: 3, name: 'Africa CDC', description: 'Strengthening the capacity of Africa\'s public health institutions', url: 'https://africacdc.org' },
-    ];
+    const filteredResources = resources.filter(resource => {
+        const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            resource.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = category === 'all' || resource.category === category;
+        return matchesSearch && matchesCategory;
+    });
 
-    const clinicalGuidance = [
-        { id: 1, title: 'Malaria Treatment Guidelines 2025', type: 'PDF' },
-        { id: 2, title: 'Maternal Care Protocols', type: 'PDF' },
-        { id: 3, title: 'COVID-19 Home Care Guide', type: 'PDF' },
-        { id: 4, title: 'National Immunization Schedule', type: 'PDF' },
-    ];
-
-    const clinics = [
-        { id: 1, name: 'Central Government Hospital', location: 'Freetown', verified: true, phone: '+232 76 000 000' },
-        { id: 2, name: 'Connaught Hospital', location: 'Freetown', verified: true, phone: '+232 76 111 222' },
-        { id: 3, name: 'Bo Government Hospital', location: 'Bo District', verified: true, phone: '+232 76 333 444' },
-    ];
-
-    const educationMaterials = [
-        { id: 1, title: 'Handwashing Techniques (Video)', language: 'Krio', type: 'Video' },
-        { id: 2, title: 'Understanding Lassa Fever (Audio)', language: 'Mende', type: 'Audio' },
-        { id: 3, title: 'Nutrition for Toddlers (Poster)', language: 'English', type: 'PDF' },
-    ];
-
-    const reports = [
-        { id: 1, title: 'Weekly Surveillance Bulletin - Week 40', date: 'Oct 2025' },
-        { id: 2, title: 'Monthly Situational Report - Sept 2025', date: 'Sept 2025' },
-    ];
+    const getIcon = (type) => {
+        switch (type) {
+            case 'document': return <FileText className="h-5 w-5" />;
+            case 'contact': return <Phone className="h-5 w-5" />;
+            case 'download': return <Download className="h-5 w-5" />;
+            case 'external': return <ExternalLink className="h-5 w-5" />;
+            default: return <FileText className="h-5 w-5" />;
+        }
+    };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-
-            {/* Header */}
-            <div className="text-center">
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Public Health Resources</h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="text-center mb-12">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Health Resources</h1>
                 <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                    The authoritative hub for national health updates, clinical guidance, and trusted contacts.
+                    Access verified documents, emergency contacts, and official health guidelines.
                 </p>
             </div>
 
-            {/* 1. Latest National Health Updates */}
-            <section>
-                <div className="flex items-center space-x-2 mb-6">
-                    <AlertTriangle className="h-6 w-6 text-amber-500" />
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Latest National Health Updates</h2>
+            {/* Search and Filter */}
+            <div className="flex flex-col md:flex-row gap-4 mb-8 max-w-4xl mx-auto">
+                <div className="relative flex-grow">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <input
+                        type="text"
+                        placeholder="Search resources..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
+                    />
                 </div>
-                <div className="grid gap-6 md:grid-cols-2">
-                    {nationalUpdates.map(update => (
-                        <div key={update.id} className="bg-white dark:bg-dark-surface p-6 rounded-xl border-l-4 border-amber-500 shadow-sm hover:shadow-md transition-shadow">
-                            <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{update.date}</span>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-1 mb-2">{update.title}</h3>
-                            <p className="text-gray-600 dark:text-gray-300 mb-4">{update.summary}</p>
-                            <a href={update.link} className="text-primary font-medium hover:underline flex items-center">Read Full Release <ChevronRight className="h-4 w-4" /></a>
-                        </div>
-                    ))}
+                <div className="relative min-w-[200px]">
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <select
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none appearance-none cursor-pointer"
+                    >
+                        <option value="all">All Categories</option>
+                        <option value="official">Official Guidelines</option>
+                        <option value="emergency">Emergency</option>
+                        <option value="prevention">Prevention</option>
+                        <option value="wellness">Wellness</option>
+                    </select>
                 </div>
-            </section>
+            </div>
 
-            {/* 2. International Authorities */}
-            <section>
-                <div className="flex items-center space-x-2 mb-6">
-                    <Globe className="h-6 w-6 text-blue-500" />
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">International Authorities</h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {authorities.map(auth => (
-                        <div key={auth.id} className="bg-white dark:bg-dark-surface p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{auth.name}</h3>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm flex-grow mb-4">{auth.description}</p>
-                            <a href={auth.url} target="_blank" rel="noopener noreferrer" className="text-primary text-sm font-medium hover:underline flex items-center">
-                                Visit Website <ExternalLink className="h-3 w-3 ml-1" />
-                            </a>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* 3. Clinical Guidance & Fact Sheets */}
-            <section>
-                <div className="flex items-center space-x-2 mb-6">
-                    <FileText className="h-6 w-6 text-green-500" />
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Clinical Guidance & Fact Sheets</h2>
-                </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {clinicalGuidance.map(guide => (
-                        <div key={guide.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg flex items-start justify-between hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-                            <div>
-                                <p className="font-medium text-gray-900 dark:text-white text-sm mb-1">{guide.title}</p>
-                                <span className="text-xs text-gray-500 uppercase">{guide.type}</span>
+            {/* Resources Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredResources.map((resource, index) => (
+                    <motion.div
+                        key={resource.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        className="bg-white dark:bg-dark-surface rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-800 group"
+                    >
+                        <div className="flex items-start justify-between mb-4">
+                            <div className={`p-3 rounded-lg ${resource.category === 'emergency' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
+                                resource.category === 'official' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' :
+                                    'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                                }`}>
+                                {getIcon(resource.type)}
                             </div>
-                            <Download className="h-5 w-5 text-gray-400" />
+                            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                                {resource.category}
+                            </span>
                         </div>
-                    ))}
-                </div>
-            </section>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
+                            {resource.title}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            {resource.description}
+                        </p>
+                        <a
+                            href={resource.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center text-sm font-medium text-primary hover:text-blue-600 transition-colors"
+                        >
+                            Access Resource <ArrowRight className="ml-1 h-4 w-4" />
+                        </a>
+                    </motion.div>
+                ))}
+            </div>
 
-            {/* 4. Local Clinics & Helplines */}
-            <section>
-                <div className="flex items-center space-x-2 mb-6">
-                    <MapPin className="h-6 w-6 text-red-500" />
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Local Clinics & Helplines</h2>
+            {filteredResources.length === 0 && (
+                <div className="text-center py-12">
+                    <p className="text-gray-500 dark:text-gray-400 text-lg">No resources found matching your criteria.</p>
                 </div>
-                <div className="bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                    <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                        <p className="text-gray-600 dark:text-gray-400">MoH Verified Clinics Registry</p>
-                    </div>
-                    <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                        {clinics.map(clinic => (
-                            <div key={clinic.id} className="p-4 flex flex-col md:flex-row md:items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-900/50">
-                                <div>
-                                    <div className="flex items-center space-x-2">
-                                        <h4 className="font-bold text-gray-900 dark:text-white">{clinic.name}</h4>
-                                        {clinic.verified && <ShieldCheck className="h-4 w-4 text-green-500" title="MoH Verified" />}
-                                    </div>
-                                    <p className="text-sm text-gray-500">{clinic.location}</p>
-                                </div>
-                                <div className="mt-2 md:mt-0 flex items-center text-gray-600 dark:text-gray-400">
-                                    <Phone className="h-4 w-4 mr-2" />
-                                    <span className="font-mono">{clinic.phone}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* 5. Education & Community Materials */}
-            <section>
-                <div className="flex items-center space-x-2 mb-6">
-                    <Video className="h-6 w-6 text-purple-500" />
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Education & Community</h2>
-                </div>
-                <div className="grid md:grid-cols-3 gap-6">
-                    {educationMaterials.map(item => (
-                        <div key={item.id} className="relative group overflow-hidden rounded-xl bg-gray-900 aspect-video flex items-center justify-center">
-                            <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors"></div>
-                            <div className="relative z-10 text-center p-4">
-                                <h4 className="text-white font-bold mb-1">{item.title}</h4>
-                                <span className="inline-block px-2 py-1 bg-primary text-white text-xs rounded-full">{item.language}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* 6. Data & Reports */}
-            <section>
-                <div className="flex items-center space-x-2 mb-6">
-                    <FileText className="h-6 w-6 text-gray-500" />
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Data & Reports</h2>
-                </div>
-                <ul className="space-y-3">
-                    {reports.map(report => (
-                        <li key={report.id} className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
-                            <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
-                            <a href="#" className="hover:text-primary underline">{report.title}</a>
-                            <span className="text-sm text-gray-500">({report.date})</span>
-                        </li>
-                    ))}
-                </ul>
-            </section>
-
-            {/* 7. Verification */}
-            <section className="bg-primary/5 dark:bg-primary/10 rounded-2xl p-8 text-center border border-primary/20">
-                <ShieldCheck className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Verify UBMED Messages</h2>
-                <p className="text-gray-600 dark:text-gray-300 max-w-xl mx-auto mb-6">
-                    Ensure the health information you receive is authentic. Use our blockchain-powered verification tool to check the validity of any message.
-                </p>
-                <Link to="/verification" className="inline-flex items-center px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-blue-600 transition-colors">
-                    Go to Verification Tool <ChevronRight className="h-5 w-5 ml-1" />
-                </Link>
-            </section>
-
+            )}
         </div>
     );
 };
+
+// Helper component for arrow icon
+const ArrowRight = ({ className }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+    >
+        <path d="M5 12h14" />
+        <path d="m12 5 7 7-7 7" />
+    </svg>
+);
 
 export default Resources;

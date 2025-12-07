@@ -30,7 +30,15 @@ async function getAIResponse(userMessage) {
                         - Be empathetic and supportive
                         - For medical emergencies, always advise seeking immediate professional help
                         - Cite general health guidelines, not personal medical advice
-                        - If unsure, recommend consulting a healthcare provider`
+                        - If unsure, recommend consulting a healthcare provider
+                        
+                        FACT CHECKING RULES:
+                        - If the user asks "Is it true that..." or verifies a rumor:
+                        - You must be VERY CAREFUL.
+                        - For general medical facts (e.g. "Is it true malaria is contagious?"), answer with scientific consensus.
+                        - For SPECIFIC LOCAL EVENTS (e.g. "Is it true 1000 people were vaccinated in Karene?"), YOU MUST CHECK YOUR KNOWLEDGE BASE FIRST.
+                        - If you do not have specific records in your knowledge base about the local event, YOU MUST SAY: "I cannot verify this specific local report at this time. Please check with an official Ministry of Health office or the Verify System on our website."
+                        - DO NOT hallucinate or guess about specific local numbers, dates, or events.`
                     },
                     {
                         role: 'user',

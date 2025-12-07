@@ -7,37 +7,74 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { generateStamp } = require('./stamp');
 const { getAIResponse } = require('./openai');
-const { validateCredentials, createSession, validateSession, deleteSession, requireAuth, updatePassword } = require('./auth');
+const { validateCredentials, createSession, validateSession, deleteSession, requireAuth, changeAdminPassword } = require('./auth');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ["https://phchatbot.netlify.app", "http://localhost:5173", "http://localhost:3000"],
-        methods: ["GET", "POST"],
-        credentials: true
+        origin: "*", // Allow all origins for MVP
+        methods: ["GET", "POST"]
     }
 });
 
+const allowedOrigins = [
+    "https://ubmed.netlify.app",
+    "https://public-health-chatbot.onrender.com",
+    "http://localhost:5173",
+    "http://localhost:3000"
+];
+
 app.use(cors({
-    origin: ["https://phchatbot.netlify.app", "http://localhost:5173", "http://localhost:3000"],
+    origin: function (origin, callback) {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
     credentials: true
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Health Check Route
-app.get('/', (req, res) => {
-    res.send('Public Health Chatbot Backend is Running! (In-Memory Mode)');
-});
+// ===== PERSISTENCE HELPERS =====
+const DATA_FILES = {
+    knowledge: './knowledge.json',
+    config: './config.json',
+    news: './news.json',
+    subscribers: './subscribers.json'
+};
 
-// Load Knowledge Base
-let knowledge = [];
-try {
-    knowledge = JSON.parse(fs.readFileSync('./knowledge.json', 'utf8'));
-} catch (e) {
-    console.log("Could not load knowledge.json, starting empty.");
+function loadData(file, defaultData) {
+    try {
+        if (fs.existsSync(file)) {
+            return JSON.parse(fs.readFileSync(file, 'utf8'));
+        }
+    } catch (e) {
+        console.error(`Error loading ${file}:`, e);
+    }
+    return defaultData;
 }
+
+function saveData(file, data) {
+    try {
+        fs.writeFileSync(file, JSON.stringify(data, null, 2));
+    } catch (e) {
+        console.error(`Error saving ${file}:`, e);
+    }
+}
+
+// Load Data
+let knowledge = loadData(DATA_FILES.knowledge, []);
+let botConfig = loadData(DATA_FILES.config, {
+    greeting: "Hello! I am your public health assistant. How can I help you today?",
+    fallback: "I'm sorry, I don't have information on that yet. Please visit our website for more resources."
+});
+let news = loadData(DATA_FILES.news, []); // Array of { id, title, content, date }
+let subscribers = loadData(DATA_FILES.subscribers, []); // Array of phone numbers
 
 // Analytics Data (Mock)
 let analytics = {
@@ -46,85 +83,80 @@ let analytics = {
     verifiedStamps: 892
 };
 
-// Bot Configuration (Mock)
-let botConfig = {
-    greeting: "Hello! I am your public health assistant. How can I help you today?",
-    fallback: "I'm sorry, I don't have information on that yet. Please visit our website for more resources."
-};
+// ===== BOT LOGIC =====
 
-// System Settings (Mock)
-let systemSettings = {
-    maintenanceMode: false,
-    debugMode: false
-};
-
-// Site Content (Mock CMS)
-let siteContent = {
-    about: "Welcome to the Public Health Chatbot. We are dedicated to providing accurate health information.",
-    privacy: "Your privacy is important to us. We do not store personal data without consent.",
-    terms: "By using this bot, you agree to our terms of service.",
-    contact: "Contact us at support@healthbot.com or call 1-800-HEALTH.",
-    support: "For technical support, please email tech@healthbot.com."
-};
-
-// Helper to find answer - AI-powered with keyword-based fallback
+// Helper to find answer
 async function findAnswer(userMessage) {
-    // OpenAI integration disabled – always use keyword fallback
-    // if (process.env.OPENAI_API_KEY) {
-    //     try {
-    //         const aiResponse = await getAIResponse(userMessage);
-    //         // Check if it's not an error fallback message
-    //         if (!aiResponse.includes("currently having trouble")) {
-    //             return aiResponse;
-    //         }
-    //         console.log("AI returned error message, falling back to keyword matching");
-    //     } catch (error) {
-    //         console.log("OpenAI failed, falling back to keyword matching:", error.message);
-    //     }
-    // }
-
-    // Fallback to keyword-based matching from knowledge.json
     const msg = userMessage.toLowerCase();
-    for (const entry of knowledge) {
-        if (entry.keywords && entry.keywords.some(keyword => msg.includes(keyword.toLowerCase()))) {
-            let response = entry.answer;
-            if (entry.resources && entry.resources.length > 0) {
-                response += "\n\n📚 *Related Resources:*";
-                entry.resources.forEach(res => {
-                    response += `\n• [${res.label}](${res.url})`;
-                });
-            }
-            return response;
+
+    // 1. Check for News/Updates keywords
+    if (msg.includes('news') || msg.includes('update') || msg.includes('latest')) {
+        if (news.length > 0) {
+            // Get latest 3 items
+            const latestNews = news.slice(-3).reverse();
+            let response = "📢 *Latest Health Updates*:\n\n";
+            latestNews.forEach(item => {
+                response += `📌 *${item.title}* (${new Date(item.date).toLocaleDateString()})\n${item.content}\n\n`;
+            });
+            return response.trim();
+        } else {
+            return "There are no new health updates at the moment. Please check back later.";
         }
     }
 
+    // 2. Check for Keyword Matches (Local Knowledge Base)
+    for (const entry of knowledge) {
+        if (entry.keywords && entry.keywords.some(keyword => msg.includes(keyword.toLowerCase()))) {
+            return entry.answer;
+        }
+    }
+
+    // 3. AI-Powered Fallback (Fact Checking & General Info)
+    if (process.env.OPENAI_API_KEY) {
+        try {
+            const aiResponse = await getAIResponse(userMessage);
+            if (!aiResponse.includes("currently having trouble")) {
+                return aiResponse;
+            }
+        } catch (error) {
+            console.log("OpenAI failed:", error.message);
+        }
+    }
+
+    // 4. Final Fallback
     return botConfig.fallback;
 }
 
-// Webhook for WhatsApp (Twilio format)
+// WhatsApp Webhook
 app.post('/whatsapp', async (req, res) => {
-    console.log('🔔 Incoming WhatsApp payload →', req.body);
     const incomingMsg = req.body.Body || '';
-    const sender = req.body.From || 'unknown';
+    const sender = req.body.From;
 
     console.log(`Received message from ${sender}: ${incomingMsg}`);
 
-    // Check Maintenance Mode
-    if (systemSettings.maintenanceMode) {
-        res.set('Content-Type', 'text/xml');
-        return res.send(`
-            <Response>
-                <Message>The bot is currently undergoing maintenance. Please try again later.</Message>
-            </Response>
-        `);
+    // Handle Subscriptions
+    if (incomingMsg.toLowerCase().includes('subscribe')) {
+        if (!subscribers.includes(sender)) {
+            subscribers.push(sender);
+            saveData(DATA_FILES.subscribers, subscribers);
+            res.set('Content-Type', 'text/xml');
+            return res.send(`<Response><Message>✅ You have been subscribed to public health updates.</Message></Response>`);
+        } else {
+            res.set('Content-Type', 'text/xml');
+            return res.send(`<Response><Message>You are already subscribed.</Message></Response>`);
+        }
     }
 
     const answer = await findAnswer(incomingMsg);
     const stamp = generateStamp(answer);
+    let finalResponse = `${answer}`;
 
-    const finalResponse = `${answer}\n\n[Official Stamp: ${stamp}]`;
+    // Only add stamp if it's a "verified" answer (from KB or AI, not simple fallback or news list)
+    if (!answer.includes(botConfig.fallback) && !answer.includes("Latest Health Updates")) {
+        finalResponse += `\n\n[Official Stamp: ${stamp}]`;
+    }
 
-    // Update analytics and emit to frontend
+    // Update analytics
     analytics.totalMessages++;
     io.emit('analytics_update', analytics);
     io.emit('new_message', { text: incomingMsg, timestamp: new Date() });
@@ -142,13 +174,9 @@ app.post('/whatsapp', async (req, res) => {
 
 // ===== AUTHENTICATION ENDPOINTS =====
 
-// Admin login
 app.post('/api/auth/login', (req, res) => {
     const { username, password } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password required' });
-    }
+    if (!username || !password) return res.status(400).json({ error: 'Required fields missing' });
 
     if (validateCredentials(username, password)) {
         const token = createSession();
@@ -158,148 +186,102 @@ app.post('/api/auth/login', (req, res) => {
     }
 });
 
-// Check authentication status
-app.get('/api/auth/status', (req, res) => {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    const isAuthenticated = validateSession(token);
-    res.json({ authenticated: isAuthenticated });
+app.post('/api/auth/change-password', requireAuth, (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    // We can't validate old password easily because we only store hash, 
+    // but in a real app we would re-hash and check. 
+    // Here we assume the session token is proof enough of identity, 
+    // OR we can require them to send 'username' again to validate specific creds.
+    // For MVP, we will just trust the Admin Token.
+
+    if (!newPassword) return res.status(400).json({ error: "New password required" });
+
+    changeAdminPassword(newPassword);
+    res.json({ success: true, message: "Password updated successfully" });
 });
 
-// Admin logout
+app.get('/api/auth/status', (req, res) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    res.json({ authenticated: validateSession(token) });
+});
+
 app.post('/api/auth/logout', (req, res) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    if (token) {
-        deleteSession(token);
-    }
-    res.json({ success: true, message: 'Logged out successfully' });
+    if (token) deleteSession(token);
+    res.json({ success: true });
 });
 
 // ===== ADMIN SYSTEM ENDPOINTS =====
 
-// Update system settings
-app.post('/api/admin/settings', requireAuth, (req, res) => {
-    systemSettings = { ...systemSettings, ...req.body };
-    console.log('System settings updated:', systemSettings);
-    res.json({ success: true, message: 'Settings updated successfully' });
-});
-
-// Get system settings
-app.get('/api/admin/settings', requireAuth, (req, res) => {
-    res.json(systemSettings);
-});
-
-// Get bot configuration
-app.get('/api/admin/bot-config', requireAuth, (req, res) => {
+// Settings / Config
+app.get('/api/admin/config', requireAuth, (req, res) => {
     res.json(botConfig);
 });
 
-// Update bot configuration
-app.post('/api/admin/bot-config', requireAuth, (req, res) => {
-    botConfig = { ...botConfig, ...req.body };
-    res.json({ success: true, message: 'Bot configuration updated' });
+app.post('/api/admin/config', requireAuth, (req, res) => {
+    const newConfig = req.body;
+    botConfig = { ...botConfig, ...newConfig };
+    saveData(DATA_FILES.config, botConfig);
+    res.json({ success: true, message: 'Configuration saved' });
 });
 
-// Change password
-app.post('/api/admin/change-password', requireAuth, (req, res) => {
-    const { newPassword } = req.body;
-    if (!newPassword || newPassword.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    }
-    updatePassword(newPassword);
-    res.json({ success: true, message: 'Password updated successfully' });
+// News Management
+app.get('/api/admin/news', requireAuth, (req, res) => {
+    res.json(news);
 });
 
-// Export analytics data
+app.post('/api/admin/news', requireAuth, (req, res) => {
+    const item = req.body;
+    if (!item.id) item.id = Date.now();
+    if (!item.date) item.date = new Date().toISOString();
+
+    const idx = news.findIndex(n => n.id === item.id);
+    if (idx !== -1) news[idx] = item;
+    else news.push(item);
+
+    saveData(DATA_FILES.news, news);
+    res.json({ success: true, item });
+});
+
+app.delete('/api/admin/news/:id', requireAuth, (req, res) => {
+    const id = parseInt(req.params.id);
+    news = news.filter(n => n.id !== id);
+    saveData(DATA_FILES.news, news);
+    res.json({ success: true });
+});
+
+// Broadcast
+app.post('/api/admin/broadcast', requireAuth, (req, res) => {
+    const { message } = req.body; // In real app, maybe an ID of a news item
+
+    console.log(`>>> BROADCASTING TO ${subscribers.length} SUBSCRIBERS: ${message}`);
+    // In production, loop through 'subscribers' and use Twilio Client to send messages.
+
+    res.json({ success: true, recipientCount: subscribers.length });
+});
+
+// Analytics
 app.get('/api/admin/analytics', requireAuth, (req, res) => {
-    res.json(analytics);
+    res.json({ ...analytics, subscriberCount: subscribers.length });
 });
 
-// Reset analytics
 app.post('/api/admin/reset-analytics', requireAuth, (req, res) => {
-    analytics = {
-        totalMessages: 0,
-        activeUsers: 0,
-        verifiedStamps: 0
-    };
+    analytics = { totalMessages: 0, activeUsers: 0, verifiedStamps: 0 };
     io.emit('analytics_update', analytics);
-    res.json({ success: true, message: 'Analytics reset successfully' });
+    res.json({ success: true });
 });
 
-// Export FAQs
-app.get('/api/admin/export-faqs', requireAuth, (req, res) => {
-    res.json(knowledge);
-});
-
-// Get Site Content (Public)
-app.get('/api/site-content', (req, res) => {
-    res.json(siteContent);
-});
-
-// Update Site Content (Admin)
-app.post('/api/admin/site-content', requireAuth, (req, res) => {
-    siteContent = { ...siteContent, ...req.body };
-    res.json({ success: true, message: 'Site content updated successfully' });
-});
-
-// ===== CHAT ENDPOINTS =====
-
-// API Endpoint for Chat Simulator
-app.post('/api/chat', async (req, res) => {
-    const { message } = req.body;
-
-    // Check Maintenance Mode
-    if (systemSettings.maintenanceMode) {
-        return res.json({
-            response: "The bot is currently undergoing maintenance. Please try again later.",
-            stamp: null,
-            timestamp: new Date()
-        });
-    }
-
-    const answer = await findAnswer(message);
-    const stamp = generateStamp(answer);
-
-    // Update analytics
-    analytics.totalMessages++;
-    io.emit('analytics_update', analytics);
-
-    res.json({
-        response: answer,
-        stamp: stamp,
-        timestamp: new Date()
-    });
-});
-
-// API Endpoints for FAQs
-app.get('/api/faqs', (req, res) => {
-    try {
-        console.log('Fetching FAQs...');
-        if (!knowledge) {
-            console.error('Knowledge base is undefined!');
-            return res.status(500).json({ error: 'Knowledge base not initialized' });
-        }
-        res.json(knowledge);
-    } catch (err) {
-        console.error('Error in GET /api/faqs:', err);
-        res.status(500).json({ error: 'Internal Server Error', details: err.message });
-    }
-});
+// FAQs
+app.get('/api/faqs', (req, res) => res.json(knowledge));
 
 app.post('/api/faqs', requireAuth, (req, res) => {
     const newFaq = req.body;
     if (!newFaq.id) newFaq.id = Date.now();
-
-    // Check if update or new
     const index = knowledge.findIndex(k => k.id === newFaq.id);
-    if (index !== -1) {
-        knowledge[index] = newFaq;
-    } else {
-        knowledge.push(newFaq);
-    }
+    if (index !== -1) knowledge[index] = newFaq;
+    else knowledge.push(newFaq);
 
-    // Persist to file (Optional for MVP, but good for persistence)
-    // fs.writeFileSync('./knowledge.json', JSON.stringify(knowledge, null, 2));
-
+    saveData(DATA_FILES.knowledge, knowledge);
     res.json({ success: true, faq: newFaq });
 });
 
@@ -308,46 +290,28 @@ app.delete('/api/faqs/:id', requireAuth, (req, res) => {
     const index = knowledge.findIndex(k => k.id === id);
     if (index !== -1) {
         knowledge.splice(index, 1);
+        saveData(DATA_FILES.knowledge, knowledge);
         res.json({ success: true });
     } else {
         res.status(404).json({ error: "FAQ not found" });
     }
 });
 
-// API Endpoint for Verification
-app.post('/api/verify', (req, res) => {
-    const { stamp } = req.body;
-
-    // Mock verification logic
-    const isValid = stamp && stamp.startsWith('0x') && stamp.length > 10;
-
-    if (isValid) {
-        analytics.verifiedStamps++;
-        io.emit('analytics_update', analytics);
-
-        res.json({
-            isValid: true,
-            timestamp: new Date().toLocaleString(),
-            message: "This message is verified as official.",
-            source: "Ministry of Health Bot",
-            blockNumber: Math.floor(Math.random() * 1000000) + 5000000
-        });
-    } else {
-        res.json({
-            isValid: false,
-            message: "Invalid stamp code. Please check and try again."
-        });
-    }
+// Chat Simulator
+app.post('/api/chat', async (req, res) => {
+    const { message } = req.body;
+    const answer = await findAnswer(message);
+    const stamp = generateStamp(answer);
+    analytics.totalMessages++;
+    io.emit('analytics_update', analytics);
+    res.json({ response: answer, stamp, timestamp: new Date() });
 });
 
-// Socket.io Connection
+// Socket.io
 io.on('connection', (socket) => {
-    console.log('A user connected to the dashboard');
+    console.log('User connected to dashboard');
     socket.emit('analytics_update', analytics);
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
+    socket.on('disconnect', () => console.log('User disconnected'));
 });
 
 const PORT = process.env.PORT || 3000;

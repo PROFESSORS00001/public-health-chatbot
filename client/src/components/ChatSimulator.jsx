@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const ChatSimulator = () => {
     const [messages, setMessages] = useState([
-        { id: 1, text: "Hello! I am the UBMED Health Assistant. Ask me about common symptoms like fever, cough, or general health info.", sender: 'bot' }
+        { id: 1, text: "Hello! I am the Public Health Chatbot. Ask me about common symptoms like fever, cough, or general health info.", sender: 'bot' }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -28,7 +28,8 @@ const ChatSimulator = () => {
         setIsTyping(true);
 
         try {
-            const response = await fetch('https://public-health-chatbot.onrender.com/api/chat', {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            const response = await fetch(`${API_URL}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: input }),
@@ -60,7 +61,7 @@ const ChatSimulator = () => {
             <div className="bg-primary p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-2 text-white">
                     <Bot className="h-6 w-6" />
-                    <span className="font-bold">UBMED Assistant</span>
+                    <span className="font-bold">Health Assistant</span>
                 </div>
                 <div className="flex items-center space-x-1 text-white/80 text-xs">
                     <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
@@ -84,17 +85,7 @@ const ChatSimulator = () => {
                                     : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm border border-gray-100 dark:border-gray-700'
                                     }`}
                             >
-                                <p className="text-sm whitespace-pre-wrap">
-                                    {msg.text.split(/(https?:\/\/[^\s]+)/g).map((part, i) => (
-                                        part.match(/https?:\/\/[^\s]+/) ? (
-                                            <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-600 break-all">
-                                                {part}
-                                            </a>
-                                        ) : (
-                                            part
-                                        )
-                                    ))}
-                                </p>
+                                <p className="text-sm">{msg.text}</p>
                                 {msg.stamp && (
                                     <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center text-[10px] text-gray-400">
                                         <ShieldCheck className="h-3 w-3 mr-1 text-green-500" />

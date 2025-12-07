@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Github, Twitter, Mail, Phone } from 'lucide-react';
 
 const Footer = () => {
@@ -8,7 +7,7 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
-                        <h3 className="text-lg font-bold text-primary mb-4">UBMED</h3>
+                        <h3 className="text-lg font-bold text-primary mb-4">HealthBot</h3>
                         <p className="text-light-muted dark:text-dark-muted text-sm">
                             Providing reliable, blockchain-verified public health information to everyone, everywhere.
                         </p>
@@ -16,10 +15,10 @@ const Footer = () => {
                     <div>
                         <h3 className="text-lg font-bold text-light-text dark:text-dark-text mb-4">Quick Links</h3>
                         <ul className="space-y-2 text-sm text-light-muted dark:text-dark-muted">
-                            <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>
-                            <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-                            <li><Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-                            <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Support</Link></li>
+                            <li><a href="#" className="hover:text-primary transition-colors">About Us</a></li>
+                            <li><a href="#" className="hover:text-primary transition-colors">Privacy Policy</a></li>
+                            <li><a href="#" className="hover:text-primary transition-colors">Terms of Service</a></li>
+                            <li><a href="#" className="hover:text-primary transition-colors">Contact Support</a></li>
                         </ul>
                     </div>
                     <div>

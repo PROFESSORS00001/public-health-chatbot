@@ -1,7 +1,9 @@
 {
-  "name": "client",
+  "name": "public-health-chat-bot",
+  "version": "1.0.0",
+  "description": "A public health chat bot",
+  "main": "index.js",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,8 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-router-dom": "^6.22.0",
     "framer-motion": "^11.0.3",
     "chart.js": "^4.4.1",

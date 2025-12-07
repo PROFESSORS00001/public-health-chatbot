@@ -12,18 +12,19 @@ let ADMIN_CREDENTIALS = {
 };
 
 /**
- * Update admin password
- */
-function updatePassword(newPassword) {
-    ADMIN_CREDENTIALS.passwordHash = hashPassword(newPassword);
-    return true;
-}
-
-/**
  * Hash password using SHA-256
  */
 function hashPassword(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+/**
+ * Update admin password
+ */
+function changeAdminPassword(newPassword) {
+    const newHash = hashPassword(newPassword);
+    ADMIN_CREDENTIALS.passwordHash = newHash;
+    return true;
 }
 
 /**
@@ -120,5 +121,5 @@ module.exports = {
     deleteSession,
     requireAuth,
     hashPassword,
-    updatePassword
+    changeAdminPassword
 };
