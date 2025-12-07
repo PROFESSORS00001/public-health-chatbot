@@ -3,6 +3,8 @@ import { ShieldCheck, CheckCircle, XCircle, Search, Loader } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 
+import { API_URL } from '../config';
+
 const Verification = () => {
     const { t } = useLanguage();
     const [stampCode, setStampCode] = useState('');
@@ -17,7 +19,7 @@ const Verification = () => {
         setVerificationResult(null);
 
         try {
-            const response = await fetch('http://localhost:3000/api/verify', {
+            const response = await fetch(`${API_URL}/api/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ stamp: stampCode }),

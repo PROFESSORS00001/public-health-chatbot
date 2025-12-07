@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, X, Settings, Database, Users, LogOut, Shield, Activity, MessageSquare, Newspaper, Send, FileText, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../config';
 
 const Admin = () => {
     const [activeTab, setActiveTab] = useState('faqs');
@@ -31,7 +32,8 @@ const Admin = () => {
 
     const [analytics, setAnalytics] = useState(null);
     const { logout, token } = useAuth();
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    // API_URL imported from config
+
 
     // Data Fetching
     useEffect(() => {

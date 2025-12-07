@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useLanguage } from '../context/LanguageContext';
+import { API_URL } from '../config';
 
 const DynamicPage = () => {
     const { slug } = useParams();
@@ -9,8 +10,6 @@ const DynamicPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { t } = useLanguage();
-
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
     useEffect(() => {
         const fetchPage = async () => {
