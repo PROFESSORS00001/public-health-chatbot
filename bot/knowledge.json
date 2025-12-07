@@ -1,12 +1,695 @@
 [
     {
         "id": 1,
-        "question": "What are the symptoms of malaria?",
-        "answer": "Common symptoms of malaria include fever, chills, headache, nausea, and vomiting. If you experience these, please visit your nearest health center.",
+        "question": "What are the common symptoms of Malaria?",
+        "answer": "Symptoms of malaria include fever, chills, headache, sweats, fatigue, nausea, and vomiting. In severe cases, it can lead to jaundice, confusion, or difficulty breathing. If you experience these, seek medical help immediately.",
         "keywords": [
             "malaria",
-            "symptoms",
-            "fever"
+            "symptom",
+            "fever",
+            "chills",
+            "mosquito"
+        ],
+        "links": [
+            {
+                "title": "WHO Malaria Fact Sheet",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/malaria"
+            },
+            {
+                "title": "CDC Malaria Info",
+                "url": "https://www.cdc.gov/malaria/about/disease.html"
+            }
         ]
+    },
+    {
+        "id": 2,
+        "question": "How can I prevent Malaria?",
+        "answer": "Prevent malaria by sleeping under insecticide-treated mosquito nets (ITNs), using insect repellent, wearing long-sleeved clothing, and draining standing water where mosquitoes breed.",
+        "keywords": [
+            "malaria",
+            "prevent",
+            "net",
+            "repellent",
+            "protection"
+        ],
+        "links": [
+            {
+                "title": "Malaria Prevention (WHO)",
+                "url": "https://www.who.int/activities/preventing-malaria"
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "question": "What is the treatment for Malaria?",
+        "answer": "Malaria is treated with artemisinin-based combination therapies (ACTs). It is crucial to complete the full course of medication prescribed by a doctor, even if you feel better.",
+        "keywords": [
+            "treatment",
+            "cure",
+            "medicine",
+            "ACT",
+            "drugs"
+        ],
+        "links": []
+    },
+    {
+        "id": 4,
+        "question": "Is there a vaccine for Malaria?",
+        "answer": "Yes, the RTS,S/AS01 (Mosquirix) and R21/Matrix-M vaccines are recommended by the WHO for children living in regions with moderate to high malaria transmission.",
+        "keywords": [
+            "vaccine",
+            "shot",
+            "immunization",
+            "mosquirix",
+            "R21"
+        ],
+        "links": [
+            {
+                "title": "WHO Malaria Vaccine Q&A",
+                "url": "https://www.who.int/news-room/questions-and-answers/item/q-a-on-rts-s-malaria-vaccine"
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "question": "Can pregnant women take malaria medication?",
+        "answer": "Yes, but only specific medications are safe. Pregnant women should attend antenatal care to receive Intermittent Preventive Treatment (IPTp) to protect themselves and the unborn baby.",
+        "keywords": [
+            "pregnant",
+            "pregnancy",
+            "baby",
+            "iptp",
+            "safe"
+        ],
+        "links": []
+    },
+    {
+        "id": 6,
+        "question": "What is Tuberculosis (TB)?",
+        "answer": "Tuberculosis (TB) is a disease caused by bacteria that usually attacks the lungs. It spreads through the air when a person with TB coughs, sneezes, or talks.",
+        "keywords": [
+            "tb",
+            "tuberculosis",
+            "lung",
+            "cough",
+            "bacteria"
+        ],
+        "links": [
+            {
+                "title": "WHO TB Fact Sheet",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/tuberculosis"
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "question": "What are the signs of TB?",
+        "answer": "Common signs include a persistent cough lasting more than 3 weeks, chest pain, coughing up blood, fatigue, weight loss, night sweats, and fever.",
+        "keywords": [
+            "symptom",
+            "sign",
+            "cough",
+            "blood",
+            "sweat",
+            "weight"
+        ],
+        "links": []
+    },
+    {
+        "id": 8,
+        "question": "Is TB curable?",
+        "answer": "Yes, TB is curable if treated early and the full course of antibiotics (usually 6 months) is taken without interruption.",
+        "keywords": [
+            "curable",
+            "cure",
+            "antibiotic",
+            "treatment"
+        ],
+        "links": []
+    },
+    {
+        "id": 9,
+        "question": "How is HIV transmitted?",
+        "answer": "HIV is transmitted via unprotected sex, sharing needles, contact with infected blood, or from mother to child during pregnancy, childbirth, or breastfeeding.",
+        "keywords": [
+            "hiv",
+            "aids",
+            "transmit",
+            "sex",
+            "needle",
+            "blood"
+        ],
+        "links": [
+            {
+                "title": "HIV Transmission (CDC)",
+                "url": "https://www.cdc.gov/hiv/basics/transmission.html"
+            }
+        ]
+    },
+    {
+        "id": 10,
+        "question": "Where can I get tested for HIV?",
+        "answer": "You can get tested at any government hospital, community health center, or VCT (Voluntary Counseling and Testing) center. Self-test kits are also available.",
+        "keywords": [
+            "test",
+            "testing",
+            "vct",
+            "hospital",
+            "status"
+        ],
+        "links": []
+    },
+    {
+        "id": 11,
+        "question": "What is PrEP?",
+        "answer": "PrEP (Pre-Exposure Prophylaxis) is a medicine people at risk for HIV take to prevent getting infected from sex or injection drug use.",
+        "keywords": [
+            "prep",
+            "prevent",
+            "pre-exposure",
+            "prophylaxis"
+        ],
+        "links": [
+            {
+                "title": "About PrEP (CDC)",
+                "url": "https://www.cdc.gov/hiv/basics/prep.html"
+            }
+        ]
+    },
+    {
+        "id": 12,
+        "question": "What should I do if I think I was exposed to HIV?",
+        "answer": "Seek medical help immediately (within 72 hours) to start PEP (Post-Exposure Prophylaxis), which can prevent HIV infection.",
+        "keywords": [
+            "pep",
+            "exposure",
+            "emergency",
+            "72 hours"
+        ],
+        "links": []
+    },
+    {
+        "id": 13,
+        "question": "What is Cholera?",
+        "answer": "Cholera is an acute diarrheal illness caused by infection of the intestine with Vibrio cholerae bacteria. It is transmitted through contaminated water or food.",
+        "keywords": [
+            "cholera",
+            "diarrhea",
+            "water",
+            "food",
+            "bacteria"
+        ],
+        "links": [
+            {
+                "title": "General Info on Cholera",
+                "url": "https://www.cdc.gov/cholera/general/"
+            }
+        ]
+    },
+    {
+        "id": 14,
+        "question": "How can I prevent Cholera?",
+        "answer": "Drink only safe/boiled water, wash hands with soap often, eat food that is cooked and hot, and avoid raw vegetables if not peeled largely on your own.",
+        "keywords": [
+            "prevent",
+            "boil",
+            "wash",
+            "soap",
+            "sanitation"
+        ],
+        "links": []
+    },
+    {
+        "id": 15,
+        "question": "What to do if someone has severe diarrhea?",
+        "answer": "Give them Oral Rehydration Solution (ORS) immediately to prevent dehydration and take them to a health facility. Continue breastfeeding if it is a baby.",
+        "keywords": [
+            "diarrhea",
+            "ors",
+            "rehydration",
+            "water",
+            "salt"
+        ],
+        "links": []
+    },
+    {
+        "id": 16,
+        "question": "What are the benefits of family planning?",
+        "answer": "Family planning allows people to attain their desired number of children and determine the spacing of pregnancies. It improves health outcomes for mothers and children.",
+        "keywords": [
+            "family planning",
+            "contraception",
+            "birth control",
+            "spacing"
+        ],
+        "links": [
+            {
+                "title": "Family Planning/Contraception (WHO)",
+                "url": "https://www.who.int/health-topics/contraception"
+            }
+        ]
+    },
+    {
+        "id": 17,
+        "question": "What methods of contraception are available?",
+        "answer": "Methods include condoms, oral pills, implants, IUDs, injectables, and permanent methods like sterilization. Consult a health worker to find the best method for you.",
+        "keywords": [
+            "method",
+            "condom",
+            "pill",
+            "implant",
+            "iud"
+        ],
+        "links": []
+    },
+    {
+        "id": 18,
+        "question": "When should antenatal care start?",
+        "answer": "Pregnant women should start antenatal care (ANC) as soon as they suspect they are pregnant, ideally in the first trimester (first 3 months).",
+        "keywords": [
+            "antenatal",
+            "anc",
+            "pregnant",
+            "clinic",
+            "checkup"
+        ],
+        "links": []
+    },
+    {
+        "id": 19,
+        "question": "Why is breastfeeding important?",
+        "answer": "Breast milk provides the ideal nutrition for infants, contains antibodies that fight off viruses and bacteria, and lowers the risk of asthma or allergies.",
+        "keywords": [
+            "breastfeed",
+            "milk",
+            "baby",
+            "nutrition",
+            "antibody"
+        ],
+        "links": [
+            {
+                "title": "Breastfeeding Benefits (CDC)",
+                "url": "https://www.cdc.gov/breastfeeding/about-breastfeeding/why-it-matters.html"
+            }
+        ]
+    },
+    {
+        "id": 20,
+        "question": "When should my child get vaccinated?",
+        "answer": "Vaccination schedules vary by country, but typically start at birth (BCG, Polio) and continue through age 5. Check your child's health card or local clinic.",
+        "keywords": [
+            "vaccine",
+            "immunize",
+            "schedule",
+            "child",
+            "polio",
+            "measles"
+        ],
+        "links": []
+    },
+    {
+        "id": 21,
+        "question": "What is COVID-19?",
+        "answer": "COVID-19 is an infectious disease caused by the SARS-CoV-2 virus. Most people infected will experience mild to moderate respiratory illness.",
+        "keywords": [
+            "covid",
+            "corona",
+            "virus",
+            "sars"
+        ],
+        "links": [
+            {
+                "title": "WHO Coronavirus (COVID-19) Dashboard",
+                "url": "https://covid19.who.int/"
+            }
+        ]
+    },
+    {
+        "id": 22,
+        "question": "What are COVID-19 symptoms?",
+        "answer": "Common symptoms include fever, cough, tiredness, and loss of taste or smell. Serious symptoms include difficulty breathing or chest pain.",
+        "keywords": [
+            "covid",
+            "symptom",
+            "cough",
+            "taste",
+            "smell"
+        ],
+        "links": []
+    },
+    {
+        "id": 23,
+        "question": "Are COVID-19 vaccines safe?",
+        "answer": "Yes, COVID-19 vaccines have been rigorously tested and are essential for preventing severe illness and death.",
+        "keywords": [
+            "covid",
+            "vaccine",
+            "safe",
+            "shot"
+        ],
+        "links": []
+    },
+    {
+        "id": 24,
+        "question": "How to wash hands properly?",
+        "answer": "Wet hands, apply soap, lather for at least 20 seconds (cleaning back of hands, between fingers, under nails), rinse, and dry.",
+        "keywords": [
+            "wash",
+            "hand",
+            "soap",
+            "clean",
+            "hygiene"
+        ],
+        "links": [
+            {
+                "title": "Handwashing Video (CDC)",
+                "url": "https://www.cdc.gov/handwashing/when-how-handwashing.html"
+            }
+        ]
+    },
+    {
+        "id": 25,
+        "question": "What is diabetes?",
+        "answer": "Diabetes is a chronic disease that occurs either when the pancreas does not produce enough insulin or when the body cannot effectively use the insulin it produces.",
+        "keywords": [
+            "diabetes",
+            "sugar",
+            "insulin",
+            "blood"
+        ],
+        "links": []
+    },
+    {
+        "id": 26,
+        "question": "What are symptoms of diabetes?",
+        "answer": "Symptoms include increased thirst, frequent urination, extreme hunger, unexplained weight loss, fatigue, irritability, and blurred vision.",
+        "keywords": [
+            "diabetes",
+            "symptom",
+            "thirst",
+            "urine",
+            "weight"
+        ],
+        "links": []
+    },
+    {
+        "id": 27,
+        "question": "How to manage high blood pressure?",
+        "answer": "Eat a healthy diet with less salt, exercise regularly, maintain a healthy weight, limit alcohol, do not smoke, and take prescribed medication.",
+        "keywords": [
+            "blood pressure",
+            "hypertension",
+            "salt",
+            "exercise"
+        ],
+        "links": [
+            {
+                "title": "Managing Hypertension (WHO)",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/hypertension"
+            }
+        ]
+    },
+    {
+        "id": 28,
+        "question": "What is mental health?",
+        "answer": "Mental health includes our emotional, psychological, and social well-being. It affects how we think, feel, and act.",
+        "keywords": [
+            "mental",
+            "health",
+            "mind",
+            "stress",
+            "depression"
+        ],
+        "links": []
+    },
+    {
+        "id": 29,
+        "question": "Signs of depression?",
+        "answer": "Persistent sadness, loss of interest in activities, changes in appetite or sleep, loss of energy, and feeling worthless or guilty.",
+        "keywords": [
+            "depression",
+            "sad",
+            "hopeless",
+            "sleep"
+        ],
+        "links": []
+    },
+    {
+        "id": 30,
+        "question": "What to do for a burn injury?",
+        "answer": "Cool the burn with cool (not cold) running water for 10-20 minutes. Do not pop blisters. Cover loosely with a sterile bandage.",
+        "keywords": [
+            "burn",
+            "fire",
+            "injury",
+            "first aid"
+        ],
+        "links": []
+    },
+    {
+        "id": 31,
+        "question": "How to treat a cut?",
+        "answer": "Clean the wound with water, apply pressure to stop bleeding, apply an antibiotic ointment if available, and cover with a bandage.",
+        "keywords": [
+            "cut",
+            "bleed",
+            "wound",
+            "first aid"
+        ],
+        "links": []
+    },
+    {
+        "id": 32,
+        "question": "What is CPR?",
+        "answer": "CPR (Cardiopulmonary Resuscitation) is an emergency procedure that can save a life if a person's breathing or heart stops.",
+        "keywords": [
+            "cpr",
+            "heart",
+            "attack",
+            "resuscitation"
+        ],
+        "links": []
+    },
+    {
+        "id": 33,
+        "question": "What is typhoid fever?",
+        "answer": "Typhoid is a life-threatening infection caused by the bacterium Salmonella Typhi. It is usually spread through contaminated food or water.",
+        "keywords": [
+            "typhoid",
+            "salmonella",
+            "fever",
+            "water"
+        ],
+        "links": []
+    },
+    {
+        "id": 34,
+        "question": "Symptoms of typhoid?",
+        "answer": "Prolonged high fever, fatigue, headache, nausea, abdominal pain, and constipation or diarrhea.",
+        "keywords": [
+            "typhoid",
+            "symptom",
+            "pain",
+            "stomach"
+        ],
+        "links": []
+    },
+    {
+        "id": 35,
+        "question": "What is Ebola?",
+        "answer": "Ebola virus disease is a rare and deadly disease in people and nonhuman primates. The viruses that cause EVD are located mainly in sub-Saharan Africa.",
+        "keywords": [
+            "ebola",
+            "virus",
+            "bleed",
+            "fever"
+        ],
+        "links": []
+    },
+    {
+        "id": 36,
+        "question": "How to prevent Ebola?",
+        "answer": "Avoid contact with blood and body fluids of sick people. Wash hands often. Do not touch objects that may have come in contact with an infected person's fluids.",
+        "keywords": [
+            "ebola",
+            "prevent",
+            "fluids",
+            "blood"
+        ],
+        "links": []
+    },
+    {
+        "id": 37,
+        "question": "What is a balanced diet?",
+        "answer": "A balanced diet contains a variety of foods: staples (grains/tubers), legumes/animal source foods, vegetables, fruits, and small amounts of fats/oils.",
+        "keywords": [
+            "diet",
+            "food",
+            "nutrition",
+            "eat",
+            "healthy"
+        ],
+        "links": []
+    },
+    {
+        "id": 38,
+        "question": "Why exercise?",
+        "answer": "Regular physical activity helps prevent and treat noncommunicable diseases such as heart disease, stroke, diabetes and breast and colon cancer.",
+        "keywords": [
+            "exercise",
+            "fitness",
+            "run",
+            "walk",
+            "gym"
+        ],
+        "links": []
+    },
+    {
+        "id": 39,
+        "question": "How much water should I drink?",
+        "answer": "Adults should aim for about 2-3 liters (8-10 glasses) of water per day, more if it is hot or if exercising.",
+        "keywords": [
+            "water",
+            "drink",
+            "hydrate",
+            "hydration"
+        ],
+        "links": []
+    },
+    {
+        "id": 40,
+        "question": "Effects of smoking?",
+        "answer": "Smoking causes cancer, heart disease, stroke, lung diseases, diabetes, and chronic obstructive pulmonary disease (COPD).",
+        "keywords": [
+            "smoke",
+            "cigarette",
+            "tobacco",
+            "cancer",
+            "lung"
+        ],
+        "links": []
+    },
+    {
+        "id": 41,
+        "question": "What is cervical cancer?",
+        "answer": "Cervical cancer is a type of cancer that occurs in the cells of the cervix. Persistent infection with HPV is the main cause.",
+        "keywords": [
+            "cancer",
+            "cervix",
+            "hpv",
+            "women"
+        ],
+        "links": []
+    },
+    {
+        "id": 42,
+        "question": "How to detect cervical cancer?",
+        "answer": "Regular screening via Pap smears or HPV tests can detect precancerous changes. Vaccination against HPV protects against the cancer.",
+        "keywords": [
+            "screen",
+            "pap smear",
+            "test",
+            "hpv"
+        ],
+        "links": []
+    },
+    {
+        "id": 43,
+        "question": "What is breast cancer?",
+        "answer": "Breast cancer is a disease in which cells in the breast grow out of control. It is the most common cancer in women worldwide.",
+        "keywords": [
+            "breast",
+            "cancer",
+            "lump",
+            "women"
+        ],
+        "links": []
+    },
+    {
+        "id": 44,
+        "question": "Self-exam for breast cancer?",
+        "answer": "Check your breasts regularly for lumps, size changes, or discharge. If you notice changes, see a doctor immediately.",
+        "keywords": [
+            "exam",
+            "check",
+            "lump",
+            "self"
+        ],
+        "links": []
+    },
+    {
+        "id": 45,
+        "question": "What is antibiotic resistance?",
+        "answer": "Antibiotic resistance happens when germs like bacteria and fungi develop the ability to defeat the drugs designed to kill them. Prevent it by only taking antibiotics prescribed by a doctor.",
+        "keywords": [
+            "antibiotic",
+            "resistance",
+            "drug",
+            "medicine"
+        ],
+        "links": [
+            {
+                "title": "Antibiotic Resistance (WHO)",
+                "url": "https://www.who.int/news-room/fact-sheets/detail/antibiotic-resistance"
+            }
+        ]
+    },
+    {
+        "id": 46,
+        "question": "What is Yellow Fever?",
+        "answer": "Yellow fever is an acute viral haemorrhagic disease transmitted by infected mosquitoes. The 'yellow' in the name refers to the jaundice that affects some patients.",
+        "keywords": [
+            "yellow fever",
+            "jaundice",
+            "mosquito"
+        ],
+        "links": []
+    },
+    {
+        "id": 47,
+        "question": "Is there a Yellow Fever vaccine?",
+        "answer": "Yes, a single dose of the yellow fever vaccine provides long-term immunity and is safe and affordable.",
+        "keywords": [
+            "yellow fever",
+            "vaccine",
+            "shot"
+        ],
+        "links": []
+    },
+    {
+        "id": 48,
+        "question": "What is Lassa Fever?",
+        "answer": "Lassa fever is an acute viral haemorrhagic illness caused by Lassa virus, transmitted by rats.",
+        "keywords": [
+            "lassa",
+            "rat",
+            "fever",
+            "bleed"
+        ],
+        "links": []
+    },
+    {
+        "id": 49,
+        "question": "What is a stroke?",
+        "answer": "A stroke occurs when the blood supply to part of your brain is interrupted or reduced, preventing brain tissue from getting oxygen and nutrients.",
+        "keywords": [
+            "stroke",
+            "brain",
+            "paralysis",
+            "blood"
+        ],
+        "links": []
+    },
+    {
+        "id": 50,
+        "question": "Signs of a stroke (FAST)?",
+        "answer": "Face drooping, Arm weakness, Speech difficulty, Time to call emergency services.",
+        "keywords": [
+            "fast",
+            "face",
+            "arm",
+            "speech"
+        ],
+        "links": []
     }
 ]

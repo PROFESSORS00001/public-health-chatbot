@@ -1,0 +1,18 @@
+{
+    "about": {
+        "title": "About Us",
+        "content": "## Our Mission\n\nWe provide reliable, blockchain-verified public health information to everyone, everywhere.\n\n## Our Team\n\nWe are a dedicated team of health professionals and technologists working together to combat misinformation."
+    },
+    "privacy": {
+        "title": "Privacy Policy",
+        "content": "## Privacy First\n\nWe value your privacy. We do not store personal conversations without your consent.\n\n## Data Usage\n\nYour data is used solely to improve our services and provide accurate health information."
+    },
+    "terms": {
+        "title": "Terms of Service",
+        "content": "## Terms of Use\n\nBy using this service, you agree to our terms. Information provided is for educational purposes only and not a substitute for professional medical advice."
+    },
+    "contact": {
+        "title": "Contact Support",
+        "content": "## Get in Touch\n\nYou can reach us at support@healthbot.com or via our WhatsApp channel."
+    }
+}

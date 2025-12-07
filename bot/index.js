@@ -29,12 +29,7 @@ app.use(cors({
     origin: function (origin, callback) {
         // allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-
-        // Check against allowed origins list or regex pattern for Netlify previews
-        const isAllowed = allowedOrigins.includes(origin) ||
-            /^https:\/\/.*--ubmed\.netlify\.app$/.test(origin);
-
-        if (!isAllowed) {
+        if (allowedOrigins.indexOf(origin) === -1) {
             var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
             return callback(new Error(msg), false);
         }
@@ -51,7 +46,7 @@ const DATA_FILES = {
     config: './config.json',
     news: './news.json',
     subscribers: './subscribers.json',
-    siteSettings: './site_settings.json'
+    pages: './pages.json'
 };
 
 function loadData(file, defaultData) {
@@ -81,13 +76,7 @@ let botConfig = loadData(DATA_FILES.config, {
 });
 let news = loadData(DATA_FILES.news, []); // Array of { id, title, content, date }
 let subscribers = loadData(DATA_FILES.subscribers, []); // Array of phone numbers
-let siteSettings = loadData(DATA_FILES.siteSettings, {
-    about: "We provided AI-powered public health information.",
-    privacy: "Your data is safe with us.",
-    terms: "Standard terms apply.",
-    contact: "contact@healthbot.org",
-    support: "support@healthbot.org"
-});
+let pages = loadData(DATA_FILES.pages, {}); // Dictionary of page slug -> { title, content }
 
 // Analytics Data (Mock)
 let analytics = {
@@ -120,7 +109,14 @@ async function findAnswer(userMessage) {
     // 2. Check for Keyword Matches (Local Knowledge Base)
     for (const entry of knowledge) {
         if (entry.keywords && entry.keywords.some(keyword => msg.includes(keyword.toLowerCase()))) {
-            return entry.answer;
+            let answer = entry.answer;
+            if (entry.links && entry.links.length > 0) {
+                answer += "\n\n*Related Resources:*";
+                entry.links.forEach(link => {
+                    answer += `\n- [${link.title}](${link.url})`;
+                });
+            }
+            return answer;
         }
     }
 
@@ -284,12 +280,34 @@ app.post('/api/admin/reset-analytics', requireAuth, (req, res) => {
     res.json({ success: true });
 });
 
-// FAQs
+// CMS / Pages
+app.get('/api/pages/:slug', (req, res) => {
+    const { slug } = req.params;
+    if (pages[slug]) {
+        res.json(pages[slug]);
+    } else {
+        res.status(404).json({ error: "Page not found" });
+    }
+});
+
+app.post('/api/pages/:slug', requireAuth, (req, res) => {
+    const { slug } = req.params;
+    const { title, content } = req.body;
+    pages[slug] = { title, content };
+    saveData(DATA_FILES.pages, pages);
+    res.json({ success: true });
+});
+
+// Knowledge Base (Enhanced)
 app.get('/api/faqs', (req, res) => res.json(knowledge));
 
 app.post('/api/faqs', requireAuth, (req, res) => {
     const newFaq = req.body;
     if (!newFaq.id) newFaq.id = Date.now();
+
+    // Ensure links array structure
+    if (!newFaq.links) newFaq.links = [];
+
     const index = knowledge.findIndex(k => k.id === newFaq.id);
     if (index !== -1) knowledge[index] = newFaq;
     else knowledge.push(newFaq);
@@ -298,28 +316,40 @@ app.post('/api/faqs', requireAuth, (req, res) => {
     res.json({ success: true, faq: newFaq });
 });
 
+app.post('/api/admin/knowledge/bulk', requireAuth, (req, res) => {
+    const items = req.body; // Expect array of { question, answer, keywords... }
+    if (!Array.isArray(items)) return res.status(400).json({ error: "Expected array" });
+
+    let count = 0;
+    items.forEach(item => {
+        if (!item.id) item.id = Date.now() + Math.random(); // simple unique id
+        knowledge.push(item);
+        count++;
+    });
+
+    saveData(DATA_FILES.knowledge, knowledge);
+    res.json({ success: true, count });
+});
+
 app.delete('/api/faqs/:id', requireAuth, (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseFloat(req.params.id); // float to handle random ids from bulk
     const index = knowledge.findIndex(k => k.id === id);
     if (index !== -1) {
         knowledge.splice(index, 1);
         saveData(DATA_FILES.knowledge, knowledge);
         res.json({ success: true });
     } else {
-        res.status(404).json({ error: "FAQ not found" });
+        // Try int parsing just in case
+        const idInt = parseInt(req.params.id);
+        const indexInt = knowledge.findIndex(k => k.id === idInt);
+        if (indexInt !== -1) {
+            knowledge.splice(indexInt, 1);
+            saveData(DATA_FILES.knowledge, knowledge);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: "FAQ not found" });
+        }
     }
-});
-
-// Site Settings
-app.get('/api/site-settings', (req, res) => {
-    res.json(siteSettings);
-});
-
-app.post('/api/admin/site-settings', requireAuth, (req, res) => {
-    const newSettings = req.body;
-    siteSettings = { ...siteSettings, ...newSettings };
-    saveData(DATA_FILES.siteSettings, siteSettings);
-    res.json({ success: true, settings: siteSettings });
 });
 
 // Chat Simulator

@@ -11,6 +11,7 @@ import Resources from './pages/Resources';
 import Verification from './pages/Verification';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
+import DynamicPage from './pages/DynamicPage';
 import { AuthProvider, ProtectedRoute } from './context/AuthContext';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/verification" element={<Verification />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/page/:slug" element={<DynamicPage />} />
                   <Route
                     path="/admin"
                     element={
