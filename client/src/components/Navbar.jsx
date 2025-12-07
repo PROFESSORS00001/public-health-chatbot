@@ -3,11 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon, Globe } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { isDark, toggleTheme } = useTheme();
     const { language, setLanguage, t } = useLanguage();
+    const { isAuthenticated } = useAuth();
     const location = useLocation();
 
     const navLinks = [
@@ -15,7 +17,7 @@ const Navbar = () => {
         { name: t('nav.dashboard'), path: '/dashboard' },
         { name: t('nav.resources'), path: '/resources' },
         { name: t('nav.verification'), path: '/verification' },
-        { name: t('nav.admin'), path: '/admin' },
+        ...(isAuthenticated ? [{ name: t('nav.admin'), path: '/admin' }] : []),
     ];
 
     const toggleLanguage = () => {

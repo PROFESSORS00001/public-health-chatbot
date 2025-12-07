@@ -50,7 +50,8 @@ const DATA_FILES = {
     knowledge: './knowledge.json',
     config: './config.json',
     news: './news.json',
-    subscribers: './subscribers.json'
+    subscribers: './subscribers.json',
+    siteSettings: './site_settings.json'
 };
 
 function loadData(file, defaultData) {
@@ -80,6 +81,13 @@ let botConfig = loadData(DATA_FILES.config, {
 });
 let news = loadData(DATA_FILES.news, []); // Array of { id, title, content, date }
 let subscribers = loadData(DATA_FILES.subscribers, []); // Array of phone numbers
+let siteSettings = loadData(DATA_FILES.siteSettings, {
+    about: "We provided AI-powered public health information.",
+    privacy: "Your data is safe with us.",
+    terms: "Standard terms apply.",
+    contact: "contact@healthbot.org",
+    support: "support@healthbot.org"
+});
 
 // Analytics Data (Mock)
 let analytics = {
@@ -300,6 +308,18 @@ app.delete('/api/faqs/:id', requireAuth, (req, res) => {
     } else {
         res.status(404).json({ error: "FAQ not found" });
     }
+});
+
+// Site Settings
+app.get('/api/site-settings', (req, res) => {
+    res.json(siteSettings);
+});
+
+app.post('/api/admin/site-settings', requireAuth, (req, res) => {
+    const newSettings = req.body;
+    siteSettings = { ...siteSettings, ...newSettings };
+    saveData(DATA_FILES.siteSettings, siteSettings);
+    res.json({ success: true, settings: siteSettings });
 });
 
 // Chat Simulator

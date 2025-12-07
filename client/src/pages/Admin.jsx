@@ -16,8 +16,8 @@ const Admin = () => {
     const [isEditing, setIsEditing] = useState(null);
     const [editForm, setEditForm] = useState({ question: '', answer: '' });
 
-    // Config State
     const [botConfig, setBotConfig] = useState({ greeting: '', fallback: '' });
+    const [siteSettings, setSiteSettings] = useState({ about: '', privacy: '', terms: '', contact: '', support: '' });
 
     // Security State
     const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -33,6 +33,7 @@ const Admin = () => {
         if (activeTab === 'analytics') fetchAnalytics();
         if (activeTab === 'news') fetchNews();
         if (activeTab === 'bot') fetchConfig();
+        if (activeTab === 'settings') fetchSiteSettings();
     }, [activeTab]);
 
     const fetchFaqs = () => {
@@ -40,6 +41,13 @@ const Admin = () => {
             .then(res => res.json())
             .then(data => setFaqs(data.map((f, i) => ({ ...f, id: f.id ?? i }))))
             .catch(err => console.error('Error fetching FAQs:', err));
+    };
+
+    const fetchSiteSettings = () => {
+        fetch('http://localhost:3000/api/site-settings')
+            .then(res => res.json())
+            .then(data => setSiteSettings(data))
+            .catch(console.error);
     };
 
     const fetchAnalytics = async () => {
@@ -187,6 +195,7 @@ const Admin = () => {
                                 { id: 'faqs', icon: Database, label: 'Knowledge Base' },
                                 { id: 'analytics', icon: Activity, label: 'Analytics' },
                                 { id: 'bot', icon: MessageSquare, label: 'Bot Config' },
+                                { id: 'settings', icon: Settings, label: 'Site Settings' },
                                 { id: 'security', icon: Shield, label: 'Security' },
                             ].map((item) => (
                                 <button
@@ -367,6 +376,60 @@ const Admin = () => {
                                     />
                                 </div>
                                 <button onClick={handleSaveConfig} className="px-4 py-2 bg-primary text-white rounded-lg">Save Configuration</button>
+                            </div>
+                        )}
+
+                        {/* SITE SETTINGS TAB */}
+                        {activeTab === 'settings' && (
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Site Settings</h3>
+                                <div className="grid grid-cols-1 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">About Us Text</label>
+                                        <textarea
+                                            className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg h-32"
+                                            value={siteSettings.about}
+                                            onChange={e => setSiteSettings({ ...siteSettings, about: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Privacy Policy</label>
+                                        <textarea
+                                            className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg h-32"
+                                            value={siteSettings.privacy}
+                                            onChange={e => setSiteSettings({ ...siteSettings, privacy: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Terms of Service</label>
+                                        <textarea
+                                            className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg h-32"
+                                            value={siteSettings.terms}
+                                            onChange={e => setSiteSettings({ ...siteSettings, terms: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Contact Email</label>
+                                            <input
+                                                className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg"
+                                                value={siteSettings.contact}
+                                                onChange={e => setSiteSettings({ ...siteSettings, contact: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Support Email</label>
+                                            <input
+                                                className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg"
+                                                value={siteSettings.support}
+                                                onChange={e => setSiteSettings({ ...siteSettings, support: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+                                    <button onClick={handleSaveSettings} className="px-4 py-2 bg-primary text-white rounded-lg w-fit">
+                                        Save Site Settings
+                                    </button>
+                                </div>
                             </div>
                         )}
 

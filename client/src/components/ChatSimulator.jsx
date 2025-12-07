@@ -85,7 +85,25 @@ const ChatSimulator = () => {
                                     : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm border border-gray-100 dark:border-gray-700'
                                     }`}
                             >
-                                <p className="text-sm">{msg.text}</p>
+                                {msg.sender === 'bot' ? (
+                                    <div className="text-sm prose dark:prose-invert max-w-none">
+                                        {msg.text.split(/(\[.*?\]\(.*?\))/g).map((part, i) => {
+                                            const match = part.match(/\[(.*?)\]\((.*?)\)/);
+                                            if (match) {
+                                                return <a key={i} href={match[2]} target="_blank" rel="noopener noreferrer" className="text-blue-200 underline hover:text-white font-medium">{match[1]}</a>;
+                                            }
+                                            // Fallback for raw URLs
+                                            const urlMatch = part.match(/(https?:\/\/[^\s]+)/g);
+                                            if (urlMatch && !match) {
+                                                const url = urlMatch[0];
+                                                return <span key={i}>{part.split(url).map((p, j) => (j === 0 ? p : <a key={`${i}-${j}`} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-200 underline hover:text-white font-medium">{url}</a>))}</span>;
+                                            }
+                                            return part;
+                                        })}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm">{msg.text}</p>
+                                )}
                                 {msg.stamp && (
                                     <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center text-[10px] text-gray-400">
                                         <ShieldCheck className="h-3 w-3 mr-1 text-green-500" />
