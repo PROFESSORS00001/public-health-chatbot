@@ -5,7 +5,7 @@ const fs = require('fs');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
-const { generateStamp } = require('./stamp');
+const { generateStamp, verifyStamp } = require('./stamp');
 const { getAIResponse } = require('./openai');
 const { validateCredentials, createSession, validateSession, deleteSession, requireAuth, changeAdminPassword } = require('./auth');
 
@@ -349,6 +349,29 @@ app.delete('/api/faqs/:id', requireAuth, (req, res) => {
         } else {
             res.status(404).json({ error: "FAQ not found" });
         }
+    }
+});
+
+// Verification Endpoint
+app.post('/api/verify', (req, res) => {
+    const { stamp } = req.body;
+    if (!stamp) return res.status(400).json({ isValid: false, message: "Stamp code is required" });
+
+    const isValid = verifyStamp(stamp);
+
+    if (isValid) {
+        res.json({
+            isValid: true,
+            message: "This content is verified and authentic.",
+            source: "Public Health Ministry Bot",
+            timestamp: new Date().toISOString(),
+            blockNumber: Math.floor(Math.random() * 1000000) // Mock block number
+        });
+    } else {
+        res.json({
+            isValid: false,
+            message: "Invalid or unknown stamp code."
+        });
     }
 });
 

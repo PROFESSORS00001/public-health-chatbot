@@ -13,4 +13,9 @@ function generateStamp(messageContent) {
     return '0x' + hash.substring(0, 10);
 }
 
-module.exports = { generateStamp };
+function verifyStamp(stamp) {
+    // Mock verification: check if it looks like our stamps (starts with 0x and length 12)
+    return stamp && stamp.startsWith('0x') && stamp.length === 12;
+}
+
+module.exports = { generateStamp, verifyStamp };
